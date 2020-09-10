@@ -12,7 +12,7 @@ def dictToSet(dict_to_convert):
     return returned_set
 
 os.environ['SPOTIPY_CLIENT_ID'] = '4b9af52471714ee6a7f44bf2c68c7eae'
-os.environ['SPOTIPY_CLIENT_SECRET'] = '384537741ec645cca1052e7d8e4dd173'
+os.environ['SPOTIPY_CLIENT_SECRET'] = ''
 os.environ['SPOTIPY_REDIRECT_URI'] = 'http://example.com'
 
 scope = "playlist-read-private playlist-read-collaborative"
