@@ -112,36 +112,55 @@ from deemix.app.queuemanager import QueueManager
 
 configFolder = getConfigFolder()
 print(configFolder)
-settings = Settings(configFolder)
+settings = Settings(configFolder).settings
+print(settings["downloadLocation"])
+settings["downloadLocation"] = str(Path.cwd() / "music")
+print("Download location set to:", settings["downloadLocation"])
 sp = SpotifyHelper(configFolder)
 qm = QueueManager()
 
-split_uri = None
-for track in tracks_to_download:
-    split_uri = track.split(":")
-    break
-
 dz = Deezer()
-
-# arl = None
-# if Path(configFolder / '.arl').exists():
-    # print(Path(configFolder / '.arl'))
-    # with open(Path(configFolder / '.arl'), 'r') as f:
-        # arl = f.readline().rstrip("\n")
-    # dz.login_via_arl(arl)
-
+    
 import os.path as path
 if path.isfile(path.join(configFolder, '.arl')):
     with open(path.join(configFolder, '.arl'), 'r') as f:
         arl = f.readline().rstrip("\n")
     dz.login_via_arl(arl)
 
-dz.login_via_arl("8275c01b2a1f89f1370fb6f9e054cfadf34dc3e461ca312a9108f03bc8a53da458de5cf115b3a97802184ddf1fc661faaf7b09aafef3ec14e2cf4bf404fc47b67cf7da4fc0338ec216e66a8c9dacb7d5f671d14a82dfa1b334ca59c0b142906d")
+dz.login_via_arl("")
 print("Logged in: ", dz.logged_in)
+
+from deemix.app.messageinterface import MessageInterface
+class MyMessageInterface(MessageInterface):
+    def send(self, message, value=None):
+        if message == "updateQueue" and value["downloaded"] == True:
+            # {'uuid': self.queueItem.uuid, 'downloaded': True, 'downloadPath': writepath}
+            spotify_uuid = None
+            for track in downloading_tracks:
+                if downloading_tracks[track] == value["uuid"]:
+                    downloading_tracks[track] == {"deezer_uuid": value["uuid"], "download_location": value["downloadPath"]}
+
+my_interface = MyMessageInterface()
+
+downloading_tracks = collections.OrderedDict()
+
+split_uri = None
+for track in tracks_to_download:
+    split_uri = track.split(":")
+    break
 
 spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
 deezer_id = sp.get_trackid_spotify(dz, split_uri[2], False, None)
-qm.addToQueue(dz, sp, "https://www.deezer.com/en/track/" + str(deezer_id), settings.settings, None, None)
+
+deezer_uuid = "track_" + deezer_id + "_3"
+downloading_tracks[track] = deezer_uuid
+
+qm.addToQueue(dz, sp, "https://www.deezer.com/en/track/" + str(deezer_id), settings, interface = my_interface)
+
+# So once all of this is done, downloading_tracks will contain a dictionary of dictionaries.
+
+# Store Deezer UUID after converting it in a dict with the Spotify UUID. Then afterwards lookup the Spotify version using the Deezer version.
+
 
 # So how do I know what file I can work with, without having to request *more* information from Deezer or Spotify? I only have access to the URI.
 # The tracks will be in the form "Artist - Album"/"Artist - Track.mp3".
