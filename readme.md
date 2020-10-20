@@ -13,7 +13,7 @@ Using **Spotify** for your music is great because you can access it from anywher
 
 Storing music locally (like on **iTunes**) is great because there aren't any ongoing costs, it's more versatile, and you aren't reliant on a corporate entity.
 
-So, this aims to combine the best of both worlds. The program is taking shape, but still isn't functional. You shouldn't use this yet.
+So, this aims to combine the best of both worlds.
 
 ___
 
@@ -58,6 +58,31 @@ This program uses:
 
 ___
 
+## Limitations
+
+I'm not gonna make it check iTunes to see if you messed with the playlists. At the moment, if you delete songs from the iTunes playlist, it won't replace it. I might add it later but we'll see.
+
+___
+
 ## Legality
 
 What are they gonna do, stab me?
+
+___
+
+## Changelog
+
+### Future Plans
+
+ - GUI to sign in to Spotify and Deezer, store credentials on a local file
+ - The ability to add other playlists to track
+
+### 1.0
+
+Rise, my creation! Go forth and conquer!
+
+Featuring:
+
+ - Hardcoded to use my dev Spotify account
+ - Downloads all of your playlists, and only your playlists
+ - No bugs that I can find...?
