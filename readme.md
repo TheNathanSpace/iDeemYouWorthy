@@ -46,8 +46,6 @@ So now the program knows the tracks you've added to your Spotify playlists, and 
 	  - Playlist contents
 	  - Downloaded tracks
 
-\#9 and #10 are still being built.
-
 ### Libraries
 
 This program uses:
