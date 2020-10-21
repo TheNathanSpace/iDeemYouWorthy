@@ -76,6 +76,9 @@ ___
 
  - GUI to sign in to Spotify and Deezer, store credentials on a local file
  - The ability to add other playlists to track
+ - Check iTunes playlists to resync if a user modifies it (with option to disable)
+ - Ability to check files and try to update cache based on local files (won't be perfect, so will be prompted by user)
+ - Refactor into better organized files to add error messages/logging
 
 ### 1.0
 
