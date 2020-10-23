@@ -15,7 +15,6 @@ Storing music locally (like on **iTunes**) is great because there aren't any ong
 
 So, this aims to combine the best of both worlds.
 
-___
 
 ## Contents
 
@@ -23,7 +22,6 @@ ___
 
 There are a lot of random files annd folders lying around right now; once the prototype is finished I'll be cleaning it up and probably packaging it into a nice `.exe`.
 
-___
 
 ## Methodology
 
@@ -54,19 +52,16 @@ This program uses:
  - The iTunes COM library to interface with iTunes. It's available from [Apple's developer website](https://developer.apple.com/download/more/) (search for "iTunes"). You need a free developer account. A digital version of the iTunes COM libary can be found [here](http://www.joshkunz.com/iTunesControl/). To see how to use Windows COM with Python, check [this](https://code.activestate.com/recipes/498241-scripting-itunes-for-windows-with-python/) out.
  - [Spotipy](https://spotipy.readthedocs.io/en/2.12.0/), a Python library for Spotify's web API.
 
-___
 
 ## Limitations
 
 I'm not gonna make it check iTunes to see if you messed with the playlists. At the moment, if you delete songs from the iTunes playlist, it won't replace it. I might add it later but we'll see.
 
-___
 
 ## Legality
 
 What are they gonna do, stab me?
 
-___
 
 ## Releases
 
