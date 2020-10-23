@@ -68,7 +68,7 @@ What are they gonna do, stab me?
 
 ___
 
-## Changelog
+## Releases
 
 ### Future Plans
 
@@ -82,10 +82,10 @@ ___
 
 What's that? We're jumping *5 whole versions?* Yep, that's just how cool we are.
 
-Changes:
+Changelog:
 
- - Refactored the entire program to be more object-oriented
- - Added the ability to add your Spotify and deezer accounts
+ - Changed: Refactored the entire program to be more object-oriented
+ - Added: Stored/modifiable Spotify and deezer credentials
 
 ### 1.0
 
@@ -94,5 +94,5 @@ Rise, my creation! Go forth and conquer!
 Featuring:
 
  - Hardcoded to use my dev Spotify account
- - Downloads all of your playlists, and only your playlists
+ - Downloads all of your playlists, and only *your* playlists
  - No bugs that I can find...?
