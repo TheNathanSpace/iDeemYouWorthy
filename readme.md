@@ -18,9 +18,39 @@ So, this aims to combine the best of both worlds.
 
 ## Contents
 
-`find_playlists.py` is the main script.
+The program files can be found in the directory `ideemyouworthy`. `main.py` is the main script; run that.
 
-There are a lot of random files annd folders lying around right now; once the prototype is finished I'll be cleaning it up and probably packaging it into a nice `.exe`.
+After I hit 2.0 (GUI!) I'll probably package it into a nice `.exe`.
+
+
+## Releases
+
+### Future Plans
+
+ - GUI to sign in to Spotify and deezer
+ - The ability to add other playlists to track
+ - Check iTunes playlists to resync if a user modifies it (with option to disable)
+ - Ability to check files and try to update cache based on local files (won't be perfect, so will be prompted by user)
+ - Add error messages/logging
+
+### 1.5
+
+What's that? We're jumping *5 whole versions?* Yep, that's just how cool we are.
+
+Changelog:
+
+ - Changed: Refactored the entire program to be more object-oriented
+ - Added: Stored/modifiable Spotify and deezer credentials
+
+### 1.0
+
+Rise, my creation! Go forth and conquer!
+
+Featuring:
+
+ - Hardcoded to use my dev Spotify account
+ - Downloads all of your playlists, and only *your* playlists
+ - No bugs that I can find...?
 
 
 ## Methodology
@@ -53,41 +83,6 @@ This program uses:
  - [Spotipy](https://spotipy.readthedocs.io/en/2.12.0/), a Python library for Spotify's web API.
 
 
-## Limitations
-
-I'm not gonna make it check iTunes to see if you messed with the playlists. At the moment, if you delete songs from the iTunes playlist, it won't replace it. I might add it later but we'll see.
-
-
 ## Legality
 
 What are they gonna do, stab me?
-
-
-## Releases
-
-### Future Plans
-
- - GUI to sign in to Spotify and deezer
- - The ability to add other playlists to track
- - Check iTunes playlists to resync if a user modifies it (with option to disable)
- - Ability to check files and try to update cache based on local files (won't be perfect, so will be prompted by user)
- - Add error messages/logging
-
-### 1.5
-
-What's that? We're jumping *5 whole versions?* Yep, that's just how cool we are.
-
-Changelog:
-
- - Changed: Refactored the entire program to be more object-oriented
- - Added: Stored/modifiable Spotify and deezer credentials
-
-### 1.0
-
-Rise, my creation! Go forth and conquer!
-
-Featuring:
-
- - Hardcoded to use my dev Spotify account
- - Downloads all of your playlists, and only *your* playlists
- - No bugs that I can find...?
