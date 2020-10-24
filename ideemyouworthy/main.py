@@ -1,4 +1,3 @@
-import json
 import collections
 from pathlib import Path
 

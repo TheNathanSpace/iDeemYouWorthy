@@ -2,6 +2,7 @@ __pycache__/
 music/
 cache/
 playlists/
+.idea/
 
 iTunesCOM.chw
 iTunesCOM.chm

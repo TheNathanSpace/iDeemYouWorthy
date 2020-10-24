@@ -4,7 +4,6 @@
 
  - GUI to sign in/add credentials, manage tracked playlists, and schedule frequency
  - The ability to specify playlists to track
- - Ability to check files and try to update cache based on local files (won't be perfect, so will be prompted by user)
  - Add error messages/logging
 
 ## 1.6 (ongoing development)
