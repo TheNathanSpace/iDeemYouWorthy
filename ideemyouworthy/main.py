@@ -28,7 +28,6 @@ playlist_changes = track_manager.find_new_tracks(new_playlists)
 
 tracks_to_download = track_manager.clear_duplicate_downloads(playlist_changes)
 
-
 configFolder = getConfigFolder()
 settings = Settings(configFolder).settings
 settings["downloadLocation"] = str(Path.cwd().parents[0] / "music")
@@ -52,7 +51,7 @@ for track in tracks_to_download:
     if not deezer_id == 0:
         deezer_uuid = "track_" + str(deezer_id) + "_3"
         downloaded_tracks[track] = deezer_uuid
-        
+
         queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id))
 
 queue_manager.addToQueue(deezer_object, spotify_helper, queue_list, settings, interface = message_interface)

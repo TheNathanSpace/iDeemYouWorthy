@@ -10,7 +10,7 @@ class PlaylistManager:
         self.spotify_manager = account_manager.spotify_manager
 
         self.master_playlist_file = Path(Path.cwd().parents[0] / "cache" / "saved_playlists.json")
-        Path.mkdir(Path.cwd().parents[0] / "cache", exist_ok=True)
+        Path.mkdir(Path.cwd().parents[0] / "cache", exist_ok = True)
         if not self.master_playlist_file.exists():
             self.master_playlist_file.touch()
             self.master_playlist_file.write_text(json.dumps({}))
@@ -38,7 +38,7 @@ class PlaylistManager:
         return old_playlists
 
     def store_playlists(self, new_playlists):
-        Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok=True)
+        Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
 
         # Make file for each playlist here
         for playlist in new_playlists:
@@ -47,4 +47,4 @@ class PlaylistManager:
                 file_path.touch()
                 file_path.write_text(json.dumps({}))
 
-        self.master_playlist_file.write_text(json.dumps(new_playlists, indent=4))
+        self.master_playlist_file.write_text(json.dumps(new_playlists, indent = 4))

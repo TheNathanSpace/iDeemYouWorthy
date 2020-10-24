@@ -25,7 +25,7 @@ class TrackManager:
             old_playlist_songs = json.loads(playlist_file_path.read_text())
             new_playlist_songs = collections.OrderedDict()
 
-            playlist_response = self.spotify_manager.playlist_items(new_playlists[playlist], fields='items.track.uri')
+            playlist_response = self.spotify_manager.playlist_items(new_playlists[playlist], fields = 'items.track.uri')
 
             playlist_response = playlist_response['items']
             index = 0
@@ -48,7 +48,7 @@ class TrackManager:
 
             playlist_changes[playlist] = playlist_differences
 
-            playlist_file_path.write_text(json.dumps(new_playlist_songs, indent=4))
+            playlist_file_path.write_text(json.dumps(new_playlist_songs, indent = 4))
 
         return playlist_changes
 
@@ -87,7 +87,7 @@ class TrackManager:
             if not track in old_master_track_dict and isinstance(downloaded_tracks[track], dict):
                 old_master_track_dict[track] = downloaded_tracks[track]
 
-        self.master_track_file.write_text(json.dumps(old_master_track_dict, indent=4))
+        self.master_track_file.write_text(json.dumps(old_master_track_dict, indent = 4))
 
         itunes = win32com.client.Dispatch("iTunes.Application")
 
