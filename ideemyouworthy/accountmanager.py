@@ -8,7 +8,6 @@ class AccountManager():
 
     def __init__(self):
         self.account_info_file = Path(Path.cwd().parents[0] / "account_info.json")
-        print(str(self.account_info_file))
         self.account_info_dict = {"SPOTIFY_USERNAME": "", "SPOTIFY_CLIENT_ID": "", "SPOTIFY_CLIENT_SECRET": "", "DEEZER_ARL": ""}
         
         if not self.account_info_file.exists():
@@ -19,10 +18,6 @@ class AccountManager():
         else:
             self.account_info_dict = json.loads(self.account_info_file.read_text())
             
-        # os.environ['SPOTIPY_CLIENT_ID'] = self.account_info_dict["SPOTIFY_CLIENT_ID"]
-        # os.environ['SPOTIPY_CLIENT_SECRET'] = self.account_info_dict["SPOTIFY_CLIENT_SECRET"]
-        # os.environ['SPOTIPY_REDIRECT_URI'] = 'https://localhost'
-
         self.spotify_scope = "playlist-read-private playlist-read-collaborative"
         self.spotify_manager = None
         
