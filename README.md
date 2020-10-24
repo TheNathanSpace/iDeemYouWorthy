@@ -22,35 +22,7 @@ The program files can be found in the directory `ideemyouworthy`. `main.py` is t
 
 After I hit 2.0 (GUI!) I'll probably package it into a nice `.exe`.
 
-
-## Releases
-
-### Future Plans
-
- - GUI to sign in to Spotify and deezer
- - The ability to add other playlists to track
- - Check iTunes playlists to resync if a user modifies it (with option to disable)
- - Ability to check files and try to update cache based on local files (won't be perfect, so will be prompted by user)
- - Add error messages/logging
-
-### 1.5
-
-What's that? We're jumping *5 whole versions?* Yep, that's just how cool we are.
-
-Changelog:
-
- - Changed: Refactored the entire program to be more object-oriented
- - Added: Stored/modifiable Spotify and deezer credentials
-
-### 1.0
-
-Rise, my creation! Go forth and conquer!
-
-Featuring:
-
- - Hardcoded to use my dev Spotify account
- - Downloads all of your playlists, and only *your* playlists
- - No bugs that I can find...?
+Check out the [changelog](CHANGELOG.md)!
 
 
 ## Methodology
