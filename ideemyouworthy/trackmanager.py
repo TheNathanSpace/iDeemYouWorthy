@@ -61,10 +61,6 @@ class TrackManager:
         for playlist in playlist_changes:
             playlist_changes_set = util.dictToSet(playlist_changes[playlist])
 
-            for track in playlist_changes_set:
-                if track not in master_track_set:
-                    print(track)
-
             differences = playlist_changes_set.difference(master_track_set)  # Checks against already downloaded tracks
 
             tracks_to_download = tracks_to_download.union(
