@@ -17,10 +17,28 @@ account_manager.login_spotify()
 
 playlist_manager = PlaylistManager(account_manager)
 
-old_playlists = playlist_manager.read_old_playlists()
-new_playlists = playlist_manager.get_new_playlists()
+# Only do this part if user specifies they want it, not custom links
+old_playlists = playlist_manager.read_user_playlists()
 
-playlist_manager.store_playlists(new_playlists)
+get_user_playlists = input("Use Spotify account playlists? [y/n] ")
+
+new_playlists = None
+if get_user_playlists == "y":
+    new_playlists = playlist_manager.get_new_user_playlists()
+    playlist_manager.store_user_playlists(new_playlists)
+
+get_custom_playlists = input("Use custom playlists (set in custom_playlists.json)? [y/n] ")
+
+new_custom_playlists = None
+if get_custom_playlists == "y":
+    new_custom_playlists = playlist_manager.read_custom_playlists()
+
+if new_playlists and new_custom_playlists:
+    new_playlists = {**new_playlists, **new_custom_playlists}
+elif new_custom_playlists and not new_playlists:
+    new_playlists = new_custom_playlists
+
+playlist_manager.create_playlist_files(new_playlists)
 
 track_manager = TrackManager(account_manager)
 
