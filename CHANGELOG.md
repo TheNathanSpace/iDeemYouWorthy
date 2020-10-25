@@ -2,16 +2,18 @@
 
 ## Future Plans
 
- - GUI to sign in/add credentials, manage tracked playlists, and schedule frequency
- - The ability to specify playlists to track
+ - GUI to sign in/add credentials, manage tracked playlists, and schedule auto-run
  - Add error messages/logging
 
-## 1.6 (ongoing development)
+## 1.6
+
+I feel like this is finally reaching my original vision and it's something I can be proud of. Next stop, GUI!
 
 ### Added
 
  - Ability to compare iTunes and cached versions of playlists to re-sync if a user modifies it.
  - Dedicated [changelog](CHANGELOG.md).
+ - Ability to track user-specified playlists, set in `custom_playlists.json`.
 
 ## 1.5
 
