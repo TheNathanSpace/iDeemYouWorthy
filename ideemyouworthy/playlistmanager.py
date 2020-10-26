@@ -95,7 +95,8 @@ class PlaylistManager:
             if not custom_playlists_dict[playlist] == "[example--will not be used]":
                 parsed_dict[playlist_object["name"]] = uri_playlist
 
-            custom_playlists_dict[playlist] = playlist_object["name"]
+            if not custom_playlists_dict[playlist] == "[example--will not be used]":
+                custom_playlists_dict[playlist] = playlist_object["name"]
 
         self.logger.log("Read custom playlists")
 
