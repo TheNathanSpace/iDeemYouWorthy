@@ -8,7 +8,8 @@ from tinytag import TinyTag
 
 class TrackManager:
 
-    def __init__(self, account_manager):
+    def __init__(self, logger, account_manager):
+        self.logger = logger
         self.account_manager = account_manager
         self.spotify_manager = account_manager.spotify_manager
 
@@ -16,6 +17,7 @@ class TrackManager:
         if not self.master_track_file.exists():
             self.master_track_file.touch()
             self.master_track_file.write_text(json.dumps({}))
+            self.logger.log("Created master track file")
 
     def find_new_tracks(self, new_playlists):
         playlist_changes = collections.OrderedDict()
@@ -47,6 +49,7 @@ class TrackManager:
                 playlist_differences.pop(track, None)
 
             playlist_changes[playlist] = playlist_differences
+            self.logger.log(playlist + ": Found " + str(len(playlist_differences)) + " new tracks")
 
             playlist_file_path.write_text(json.dumps(new_playlist_songs, indent = 4))
 
@@ -63,20 +66,13 @@ class TrackManager:
 
             differences = playlist_changes_set.difference(master_track_set)  # Checks against already downloaded tracks
 
-            tracks_to_download = tracks_to_download.union(
-                differences)  # Checks against other lists so a new one isn't downloaded twice
+            tracks_to_download = tracks_to_download.union(differences)  # Checks against other lists so a new one isn't downloaded twice
 
+        self.logger.log("Cleared duplicate downloads")
         return tracks_to_download
 
-    def finished_queue(self, downloaded_tracks, new_playlists, playlist_changes):
-        """ downloaded_tracks:
-            {
-                "spotify:track:1rqqCSm0Qe4I9rUvWncaom": {
-                    "deezer_uuid": "track_867154512_3",
-                    "download_location": "D:\\_python\\Deemix Playlists\\music\\The Glitch Mob - Chemicals - EP\\The Glitch Mob - Chemicals.mp3"
-                }
-            }
-        """
+    def finished_queue(self, downloaded_tracks, new_playlists, playlist_changes):  # TODO: Keep logging
+        self.logger.log("Queue finished downloading")
 
         old_master_track_dict = json.loads(self.master_track_file.read_text())
         for track in downloaded_tracks:
@@ -84,9 +80,10 @@ class TrackManager:
                 old_master_track_dict[track] = downloaded_tracks[track]
 
         self.master_track_file.write_text(json.dumps(old_master_track_dict, indent = 4))
+        self.logger.log("Saved master track list to file")
 
         itunes = win32com.client.Dispatch("iTunes.Application")
-
+        self.logger.log("iTunes opened")
         itunes_sources = itunes.Sources
         itunes_playlists = None
         for source in itunes_sources:
@@ -113,9 +110,14 @@ class TrackManager:
                 if track in old_master_track_dict and isinstance(old_master_track_dict[track], dict):  # (this will be true unless there was a downloading error)
                     itunes_playlists_dict[playlist].AddFile(old_master_track_dict[track]["download_location"])
 
+        self.logger.log("Finished updating iTunes")
+
     def fix_itunes(self, itunes_playlists_dict, playlist_edits):
+        self.logger.log("Starting to fix iTunes")
         for playlist in playlist_edits:
-            if playlist_edits[playlist]["extra_tracks"]:  # TODO: Do this
+            extra_count = 0
+            missing_count = 0
+            if playlist_edits[playlist]["extra_tracks"]:
                 for extra_track in playlist_edits[playlist]["extra_tracks"]:
                     # Cycle through iTunes playlist, remove this track when you find it
                     for track in itunes_playlists_dict[playlist].Tracks:
@@ -123,18 +125,23 @@ class TrackManager:
                             itunes_location = track.Location
                             if itunes_location == extra_track:
                                 track.Delete()
+                                extra_count += 1
                                 print("deleted " + playlist_edits[playlist]["extra_tracks"][extra_track])
                         except:
                             ""
             if playlist_edits[playlist]["missing_tracks"]:
                 for missing_track in playlist_edits[playlist]["missing_tracks"]:
-                    master_track_dict = json.loads(self.master_track_file.read_text())
                     # (technically moving right ahead without checking for the file to exist could be bad if it was deleted from the master list but not the playlist list?)
                     itunes_playlists_dict[playlist].AddFile(missing_track)
+                    missing_count += 1
                     print("added " + missing_track)
+
+            self.logger.log(playlist + ": Removed " + str(extra_count) + " extra tracks")
+            self.logger.log(playlist + ": Added " + str(missing_count) + " missing tracks")
 
     # This verifies that the iTunes and cached playlists agree
     def verify_itunes(self):
+        self.logger.log("Starting to verify iTunes is up-to-date")
         itunes = win32com.client.Dispatch("iTunes.Application")
 
         itunes_sources = itunes.Sources
@@ -175,7 +182,7 @@ class TrackManager:
                         extra_tracks[itunes_location] = track.Name
 
                 except:
-                    "Don't even worry about it; it's not a local file"
+                    self.logger.log("Found a non-local file. This isn't a problem but I think it might be interesting")
 
             missing_tracks = collections.OrderedDict()
             for track in official_locations:

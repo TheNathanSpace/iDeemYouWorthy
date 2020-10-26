@@ -11,14 +11,14 @@ from accountmanager import AccountManager
 from playlistmanager import PlaylistManager
 from trackmanager import TrackManager
 from downloadfinished_messageinterface import DownloadFinishedMessageInterface
+from logger import Logger
 
-account_manager = AccountManager()
+logger = Logger()
+
+account_manager = AccountManager(logger)
 account_manager.login_spotify()
 
-playlist_manager = PlaylistManager(account_manager)
-
-# Only do this part if user specifies they want it, not custom links
-old_playlists = playlist_manager.read_user_playlists()
+playlist_manager = PlaylistManager(logger, account_manager)
 
 get_user_playlists = input("Use Spotify account playlists? [y/n] ")
 
@@ -40,38 +40,42 @@ elif new_custom_playlists and not new_playlists:
 
 playlist_manager.create_playlist_files(new_playlists)
 
-track_manager = TrackManager(account_manager)
+track_manager = TrackManager(logger, account_manager)
 
 playlist_changes = track_manager.find_new_tracks(new_playlists)
 
 tracks_to_download = track_manager.clear_duplicate_downloads(playlist_changes)
 
-configFolder = getConfigFolder()
-settings = Settings(configFolder).settings
-settings["downloadLocation"] = str(Path.cwd().parents[0] / "music")
-spotify_helper = SpotifyHelper(configFolder)
-queue_manager = QueueManager()
+if len(tracks_to_download) > 0:
+    logger.log("Downloading " + str(len(tracks_to_download)) + " tracks")
+    configFolder = getConfigFolder()
+    settings = Settings(configFolder).settings
+    settings["downloadLocation"] = str(Path.cwd().parents[0] / "music")
+    spotify_helper = SpotifyHelper(configFolder)
+    queue_manager = QueueManager()
 
-deezer_object = Deezer()
+    deezer_object = Deezer()
 
-account_manager.login_deezer(deezer_object)
+    account_manager.login_deezer(deezer_object)
 
-downloaded_tracks = collections.OrderedDict()
-message_interface = DownloadFinishedMessageInterface(downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager)
+    downloaded_tracks = collections.OrderedDict()
+    message_interface = DownloadFinishedMessageInterface(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager)
 
-queue_list = list()
-for track in tracks_to_download:
-    split_uri = track.split(":")
+    queue_list = list()
+    for track in tracks_to_download:
+        split_uri = track.split(":")
 
-    spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
-    deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
+        spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
+        deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
 
-    if not deezer_id == 0:
-        deezer_uuid = "track_" + str(deezer_id) + "_3"
-        downloaded_tracks[track] = deezer_uuid
+        if not deezer_id == 0:
+            deezer_uuid = "track_" + str(deezer_id) + "_3"
+            downloaded_tracks[track] = deezer_uuid
 
-        queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id))
+            queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id))
 
-queue_manager.addToQueue(deezer_object, spotify_helper, queue_list, settings, interface = message_interface)
+    queue_manager.addToQueue(deezer_object, spotify_helper, queue_list, settings, interface = message_interface)
+else:
+    logger.log("Downloading 0 tracks")
 
 track_manager.verify_itunes()
