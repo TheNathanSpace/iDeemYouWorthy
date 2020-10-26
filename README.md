@@ -72,7 +72,7 @@ Does this duplicate tracks if you have two playlists with the same track?
  > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically
 
 I'm having trouble with ________, what's going on?
- > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#Contact Information).
+ > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-information).
 
 ## Methodology
 
