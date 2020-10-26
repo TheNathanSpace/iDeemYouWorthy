@@ -34,7 +34,6 @@ class TrackManager:
             for track in playlist_response:
                 tracks_dict = playlist_response[index]['track']
                 track_uri = tracks_dict["uri"]
-                track_data = {}
                 new_playlist_songs[track_uri] = None
 
                 index += 1
@@ -71,7 +70,7 @@ class TrackManager:
         self.logger.log("Cleared duplicate downloads")
         return tracks_to_download
 
-    def finished_queue(self, downloaded_tracks, new_playlists, playlist_changes):  # TODO: Keep logging
+    def finished_queue(self, downloaded_tracks, new_playlists, playlist_changes, use_itunes):  # TODO: Keep logging
         self.logger.log("Queue finished downloading")
 
         old_master_track_dict = json.loads(self.master_track_file.read_text())
@@ -82,35 +81,39 @@ class TrackManager:
         self.master_track_file.write_text(json.dumps(old_master_track_dict, indent = 4))
         self.logger.log("Saved master track list to file")
 
-        itunes = win32com.client.Dispatch("iTunes.Application")
-        self.logger.log("iTunes opened")
-        itunes_sources = itunes.Sources
-        itunes_playlists = None
-        for source in itunes_sources:
-            if source.Kind == 1:
-                itunes_playlists = source.Playlists
+        if use_itunes:
+            self.logger.log("Using iTunes")
+            itunes = win32com.client.Dispatch("iTunes.Application")
+            self.logger.log("iTunes opened")
+            itunes_sources = itunes.Sources
+            itunes_playlists = None
+            for source in itunes_sources:
+                if source.Kind == 1:
+                    itunes_playlists = source.Playlists
 
-        itunes_playlists_dict = {}
-        playlists_left = itunes_playlists.Count
-        while playlists_left != 0:
-            playlist = itunes_playlists.Item(playlists_left)
-            blacklist = {"Voice Memos", "Genius", "Audiobooks", "Podcasts", "TV Shows", "Movies", "Library", "Music"}
-            if playlist.Name not in blacklist:
-                itunes_playlists_dict[playlist.Name] = playlist
-            playlists_left -= 1
+            itunes_playlists_dict = {}
+            playlists_left = itunes_playlists.Count
+            while playlists_left != 0:
+                playlist = itunes_playlists.Item(playlists_left)
+                blacklist = {"Voice Memos", "Genius", "Audiobooks", "Podcasts", "TV Shows", "Movies", "Library", "Music"}
+                if playlist.Name not in blacklist:
+                    itunes_playlists_dict[playlist.Name] = playlist
+                playlists_left -= 1
 
-        for playlist in new_playlists:
-            if not playlist in itunes_playlists_dict.keys():
-                new_playlist = itunes.CreatePlayList(playlist)
-                itunes_playlists_dict[playlist] = new_playlist
+            for playlist in new_playlists:
+                if not playlist in itunes_playlists_dict.keys():
+                    new_playlist = itunes.CreatePlayList(playlist)
+                    itunes_playlists_dict[playlist] = new_playlist
 
-        # Cycle through playlist changes
-        for playlist in playlist_changes:
-            for track in playlist_changes[playlist]:
-                if track in old_master_track_dict and isinstance(old_master_track_dict[track], dict):  # (this will be true unless there was a downloading error)
-                    itunes_playlists_dict[playlist].AddFile(old_master_track_dict[track]["download_location"])
+            # Cycle through playlist changes
+            for playlist in playlist_changes:
+                for track in playlist_changes[playlist]:
+                    if track in old_master_track_dict and isinstance(old_master_track_dict[track], dict):  # (this will be true unless there was a downloading error)
+                        itunes_playlists_dict[playlist].AddFile(old_master_track_dict[track]["download_location"])
 
-        self.logger.log("Finished updating iTunes")
+            self.logger.log("Finished updating iTunes")
+        else:
+            self.logger.log("Not using iTunes")
 
     def fix_itunes(self, itunes_playlists_dict, playlist_edits):
         self.logger.log("Starting to fix iTunes")

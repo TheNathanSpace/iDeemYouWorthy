@@ -38,6 +38,8 @@ if new_playlists and new_custom_playlists:
 elif new_custom_playlists and not new_playlists:
     new_playlists = new_custom_playlists
 
+use_itunes = input("Update iTunes? [y/n] ")
+
 playlist_manager.create_playlist_files(new_playlists)
 
 track_manager = TrackManager(logger, account_manager)
@@ -59,7 +61,7 @@ if len(tracks_to_download) > 0:
     account_manager.login_deezer(deezer_object)
 
     downloaded_tracks = collections.OrderedDict()
-    message_interface = DownloadFinishedMessageInterface(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager)
+    message_interface = DownloadFinishedMessageInterface(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager, use_itunes)
 
     queue_list = list()
     for track in tracks_to_download:
@@ -78,4 +80,5 @@ if len(tracks_to_download) > 0:
 else:
     logger.log("Downloading 0 tracks")
 
-track_manager.verify_itunes()
+if use_itunes:
+    track_manager.verify_itunes()

@@ -2,7 +2,7 @@ from deemix.app.messageinterface import MessageInterface
 
 
 class DownloadFinishedMessageInterface(MessageInterface):
-    def __init__(self, logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager):
+    def __init__(self, logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager, use_itunes):
         self.logger = logger
 
         self.downloaded_tracks = downloaded_tracks
@@ -10,6 +10,8 @@ class DownloadFinishedMessageInterface(MessageInterface):
         self.new_playlists = new_playlists
         self.playlist_changes = playlist_changes
         self.queue_manager = queue_manager
+
+        self.use_itunes = use_itunes
 
     def send(self, message, value = None):  # TODO: Is there a way to make this more modular so that if it crashes it doesn't lose the progress? I think deezer should make it okay, but still...
         if message == "updateQueue" and "downloaded" in value:
@@ -20,4 +22,4 @@ class DownloadFinishedMessageInterface(MessageInterface):
                         self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": value["downloadPath"]}
 
                 if len(self.queue_manager.queue) == 0:
-                    self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes)
+                    self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
