@@ -66,6 +66,14 @@ You are not giving me your password! These tokens are used to *avoid* sharing yo
  2. You should have your `ARL` copied.
 
 
+## FAQ
+
+Does this duplicate tracks if you have two playlists with the same track?
+ > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically
+
+I'm having trouble with ________, what's going on?
+ > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#Contact Information).
+
 ## Methodology
 
 Here's an overview of how it works:
@@ -94,6 +102,15 @@ This program uses:
  - [deemix](https://old.reddit.com/r/deemix) to download the tracks.
  - The iTunes COM library to interface with iTunes. It's available from [Apple's developer website](https://developer.apple.com/download/more/) (search for "iTunes"). You need a free developer account. A digital version of the iTunes COM library can be found [here](http://www.joshkunz.com/iTunesControl/). To see how to use Windows COM with Python, check [this](https://code.activestate.com/recipes/498241-scripting-itunes-for-windows-with-python/) out.
  - [Spotipy](https://spotipy.readthedocs.io/en/2.12.0/), a Python library for Spotify's web API.
+
+
+## Contact Information
+
+**Discord:** TheKingElessar#3226
+
+**Reddit:** /u/TheKingElessar
+
+**Email:** thekingelessar1@gmail.com
 
 
 ## Legality
