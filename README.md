@@ -40,6 +40,8 @@ You will be able to get the playlists from your Spotify account. You can also (o
 
 You are not giving me your password! These tokens are used to *avoid* sharing your password. All of this data is stored locally in the `account_info.json` file, and is sent exclusively to Spotify and deezer. It is safe.
 
+#### Account Info
+
 ##### Finding `SPOTIFY_USERNAME`
 
  1. Go to https://open.spotify.com/. Sign into your account.
