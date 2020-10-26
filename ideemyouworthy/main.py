@@ -67,14 +67,17 @@ if len(tracks_to_download) > 0:
     for track in tracks_to_download:
         split_uri = track.split(":")
 
-        spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
-        deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
+        if split_uri[1] == "local":
+            track_manager.store_local_tracks(track)
+        else:
+            spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
+            deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
 
-        if not deezer_id == 0:
-            deezer_uuid = "track_" + str(deezer_id) + "_3"
-            downloaded_tracks[track] = deezer_uuid
+            if not deezer_id == 0:
+                deezer_uuid = "track_" + str(deezer_id) + "_3"
+                downloaded_tracks[track] = deezer_uuid
 
-            queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id))
+                queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id))
 
     queue_manager.addToQueue(deezer_object, spotify_helper, queue_list, settings, interface = message_interface)
 else:

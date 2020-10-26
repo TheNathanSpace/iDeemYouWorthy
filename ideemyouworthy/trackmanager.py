@@ -19,6 +19,19 @@ class TrackManager:
             self.master_track_file.write_text(json.dumps({}))
             self.logger.log("Created master track file")
 
+        self.skipped_local_tracks_file = Path(Path.cwd().parents[0] / "cache" / "skipped_local_tracks.txt")
+        if not self.skipped_local_tracks_file.exists():
+            self.skipped_local_tracks_file.touch()
+            self.logger.log("Created skipped local tracks file")
+
+    def get_playlist_tracks(self, playlist_id, fields):
+        results = self.spotify_manager.playlist_tracks(playlist_id, fields = fields)
+        tracks = results['items']
+        while results['next']:
+            results = self.spotify_manager.next(results)
+            tracks.extend(results['items'])
+        return tracks
+
     def find_new_tracks(self, new_playlists):
         playlist_changes = collections.OrderedDict()
 
@@ -27,9 +40,8 @@ class TrackManager:
             old_playlist_songs = json.loads(playlist_file_path.read_text())
             new_playlist_songs = collections.OrderedDict()
 
-            playlist_response = self.spotify_manager.playlist_items(new_playlists[playlist], fields = 'items.track.uri')
+            playlist_response = self.get_playlist_tracks(new_playlists[playlist], 'items.track.uri, next')
 
-            playlist_response = playlist_response['items']
             index = 0
             for track in playlist_response:
                 tracks_dict = playlist_response[index]['track']
@@ -201,3 +213,7 @@ class TrackManager:
             playlist_edits[playlist]["missing_tracks"] = missing_tracks
 
         self.fix_itunes(itunes_playlists_dict, playlist_edits)
+
+    def store_local_tracks(self, local_track):
+        with self.skipped_local_tracks_file.open("a") as append_file:
+            append_file.write(local_track + "\n")
