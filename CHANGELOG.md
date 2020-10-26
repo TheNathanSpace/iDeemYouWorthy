@@ -13,7 +13,8 @@ I feel like this is finally reaching my original vision and it's something I can
  - Ability to compare iTunes and cached versions of playlists to re-sync if a user modifies it.
  - Dedicated [changelog](CHANGELOG.md).
  - Ability to track user-specified playlists, set in `custom_playlists.json`.
- - Added logging
+ - Logging (`logs` folder, new log each run)
+ - Option to not use iTunes
 
 ## 1.5
 

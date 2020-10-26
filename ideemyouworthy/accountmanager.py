@@ -20,7 +20,7 @@ class AccountManager:
 
             self.logger.log("Created account info file")
 
-            print("User must add login information")
+            print("User must add login information (to file account_info.json)")
             input("Press enter once login information has been added")
 
             self.logger.log("User claims account info has been entered")
