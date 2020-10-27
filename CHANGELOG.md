@@ -4,9 +4,11 @@
 
  - GUI to sign in/add credentials, manage tracked playlists, and schedule auto-run
 
-## 1.6
+## 1.6 (terminal branch)
 
 I feel like this is finally reaching my original vision and it's something I can be proud of. Next stop, GUI!
+
+I've decided that the 1.x branch will remain terminal-only. I'll try to backport features in the 2.x branch to 1.x so that, if you prefer using a terminal instead of the GUI, you can do so.
 
 #### Added
 
