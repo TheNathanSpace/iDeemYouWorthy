@@ -20,25 +20,25 @@ account_manager.login_spotify()
 
 playlist_manager = PlaylistManager(logger, account_manager)
 
-get_user_playlists = input("Use Spotify account playlists? [y/n] ")
+get_user_playlists = input("Use Spotify account playlists? [y/n] ") == "y"
+get_custom_playlists = input("Use custom playlists (set in custom_playlists.json)? [y/n] ") == "y"
+use_itunes = input("Update iTunes? [y/n] ") == "y"
+fix_itunes = input("Compare iTunes and cached versions of playlists to re-sync (fixes problems from program crash, also reverts user modifications)? [y/n] ") == "y"
+make_m3u = input("Make m3u files (stored in the playlists folder)? [y/n] ") == "y"
 
 new_playlists = None
-if get_user_playlists == "y":
+if get_user_playlists:
     new_playlists = playlist_manager.get_new_user_playlists()
     playlist_manager.store_user_playlists(new_playlists)
 
-get_custom_playlists = input("Use custom playlists (set in custom_playlists.json)? [y/n] ")
-
 new_custom_playlists = None
-if get_custom_playlists == "y":
+if get_custom_playlists:
     new_custom_playlists = playlist_manager.read_custom_playlists()
 
 if new_playlists and new_custom_playlists:
     new_playlists = {**new_playlists, **new_custom_playlists}
 elif new_custom_playlists and not new_playlists:
     new_playlists = new_custom_playlists
-
-use_itunes = input("Update iTunes? [y/n] ")
 
 playlist_manager.create_playlist_files(new_playlists)
 
@@ -83,6 +83,8 @@ if len(tracks_to_download) > 0:
 else:
     logger.log("Downloading 0 tracks")
 
-fix_itunes = input("Compare iTunes and cached versions of playlists to re-sync (reverts user modifications)? [y/n] ")
 if use_itunes and fix_itunes:
     track_manager.verify_itunes()
+
+if make_m3u:
+    playlist_manager.create_m3u()

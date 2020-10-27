@@ -87,7 +87,7 @@ class TrackManager:
 
         old_master_track_dict = json.loads(self.master_track_file.read_text())
         for track in downloaded_tracks:
-            if not track in old_master_track_dict and isinstance(downloaded_tracks[track], dict):
+            if track not in old_master_track_dict and isinstance(downloaded_tracks[track], dict):
                 old_master_track_dict[track] = downloaded_tracks[track]
 
         self.master_track_file.write_text(json.dumps(old_master_track_dict, indent = 4))
