@@ -68,7 +68,7 @@ if len(tracks_to_download) > 0:
         split_uri = track.split(":")
 
         if split_uri[1] == "local":
-            track_manager.store_local_tracks(track)
+            track_manager.store_problematic_track(track)
         else:
             spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
             deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
@@ -83,5 +83,6 @@ if len(tracks_to_download) > 0:
 else:
     logger.log("Downloading 0 tracks")
 
-if use_itunes:
+fix_itunes = input("Compare iTunes and cached versions of playlists to re-sync (reverts user modifications)? [y/n] ")
+if use_itunes and fix_itunes:
     track_manager.verify_itunes()
