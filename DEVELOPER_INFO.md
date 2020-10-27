@@ -1,6 +1,6 @@
 # Developer Info
 
-Feel free to take a look at how it works! The code isn't obfusacated and I think it's reasonably understandable. Feel free to [shoot me a message](README.md#contact-ithinknformation) if you have any questions.
+Feel free to take a look at how it works! The code isn't obfuscated and I think it's reasonably understandable. Feel free to [shoot me a message](README.md#contact-information) if you have any questions.
 
 ## Methodology
 
