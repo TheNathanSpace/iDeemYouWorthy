@@ -72,37 +72,9 @@ Does this duplicate tracks if you have two playlists with the same track?
  > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically
 
 I'm having trouble with ________, what's going on?
- > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-information).
+ > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-ithinknformation).
 
-## Methodology
-
-Here's an overview of how it works:
-
-1. Authorizes with your Spotify account.
-2. Retrieves playlist data from Spotify.
-3. Retrieves playlist data from iTunes.
-4. Checks for new Spotify playlists (compared to the last time the program ran).
-5. Checks for changes in the playlist contents (compared to the last time the program ran).
-6. Checks the new tracks against previously downloaded tracks (from the last time the program ran).
-
-So now the program knows the tracks you've added to your Spotify playlists, and it can start downloading the changes.
-
-7. Authorizes with your deezer account.
-8. Downloads the new tracks using deemix.
-9. Adds the tracks to iTunes in the appropriate playlists.
-10. Stores the latest versions of the following for the next time the program is run:
-      - Playlists
-	  - Playlist contents
-	  - Downloaded tracks
-
-### Libraries
-
-This program uses:
-
- - [deemix](https://old.reddit.com/r/deemix) to download the tracks.
- - The iTunes COM library to interface with iTunes. It's available from [Apple's developer website](https://developer.apple.com/download/more/) (search for "iTunes"). You need a free developer account. A digital version of the iTunes COM library can be found [here](http://www.joshkunz.com/iTunesControl/). To see how to use Windows COM with Python, check [this](https://code.activestate.com/recipes/498241-scripting-itunes-for-windows-with-python/) out.
- - [Spotipy](https://spotipy.readthedocs.io/en/2.12.0/), a Python library for Spotify's web API.
-
+I don't know where to put this, but if you have local files in your Spotify playlist, they'll be printed to `cache/skipped_local_tracks.txt`. You can figure out what to do with them.
 
 ## Contact Information
 
