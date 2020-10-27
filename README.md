@@ -71,10 +71,19 @@ You are not giving me your password! These tokens are used to *avoid* sharing yo
 Does this duplicate tracks if you have two playlists with the same track?
  > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically
 
+I'm having trouble with this file.
+
+> If you have local files in your Spotify playlist, they'll be printed to `cache/problematic_tracks.txt`. You can figure out what to do with them.
+
+> If a file's path size is over 260, it will be printed to `cache/problematic_tracks.txt`. It cannot be added to iTunes on Windows.
+
+I'm getting some stack overflow error!
+
+> This happens when you overload deemix, trying to download too many tracks at once. Currently, the best fix is to only download something like 500 tracks at a time. Use the custom playlist file to control which playlists are downloaded.
+
 I'm having trouble with ________, what's going on?
  > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-ithinknformation).
 
-I don't know where to put this, but if you have local files in your Spotify playlist, they'll be printed to `cache/skipped_local_tracks.txt`. You can figure out what to do with them.
 
 ## Contact Information
 
