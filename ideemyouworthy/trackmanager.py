@@ -19,9 +19,9 @@ class TrackManager:
             self.master_track_file.write_text(json.dumps({}))
             self.logger.log("Created master track file")
 
-        self.skipped_local_tracks_file = Path(Path.cwd().parents[0] / "cache" / "skipped_local_tracks.txt")
-        if not self.skipped_local_tracks_file.exists():
-            self.skipped_local_tracks_file.touch()
+        self.problematic_tracks_file = Path(Path.cwd().parents[0] / "cache" / "problematic_tracks.txt")
+        if not self.problematic_tracks_file.exists():
+            self.problematic_tracks_file.touch()
             self.logger.log("Created skipped local tracks file")
 
     def get_playlist_tracks(self, playlist_id, fields):
@@ -147,9 +147,16 @@ class TrackManager:
             if playlist_edits[playlist]["missing_tracks"]:
                 for missing_track in playlist_edits[playlist]["missing_tracks"]:
                     # (technically moving right ahead without checking for the file to exist could be bad if it was deleted from the master list but not the playlist list?)
-                    itunes_playlists_dict[playlist].AddFile(missing_track)
-                    missing_count += 1
-                    print("added " + missing_track)
+                    try:
+                        itunes_playlists_dict[playlist].AddFile(missing_track)
+                        missing_count += 1
+                        print("added " + missing_track)
+
+                    except:
+                        print(missing_track + " could not be added to iTunes. The max file path length on Windows is 260; the length of this file path is " + str(len(missing_track)))
+                        file_path_length = str(len(missing_track))
+                        self.logger.log(missing_track + " could not be added to iTunes. File path length: " + file_path_length)
+                        self.store_problematic_track("(" + file_path_length + ") " + missing_track)
 
             self.logger.log(playlist + ": Removed " + str(extra_count) + " extra tracks")
             self.logger.log(playlist + ": Added " + str(missing_count) + " missing tracks")
@@ -214,6 +221,6 @@ class TrackManager:
 
         self.fix_itunes(itunes_playlists_dict, playlist_edits)
 
-    def store_local_tracks(self, local_track):
-        with self.skipped_local_tracks_file.open("a") as append_file:
+    def store_problematic_track(self, local_track):
+        with self.problematic_tracks_file.open("a") as append_file:
             append_file.write(local_track + "\n")
