@@ -101,7 +101,6 @@ class PlaylistManager:
         self.logger.log("Read custom playlists")
 
         self.store_custom_playlists(custom_playlists_dict)
-        self.logger.log("Stored custom playlists")
 
         return parsed_dict
 
@@ -152,3 +151,26 @@ class PlaylistManager:
         for itunes_playlist in itunes_playlists_dict:
             if itunes_playlist == playlist:
                 itunes_playlists_dict[itunes_playlist].Delete()
+
+    def create_m3u(self):
+        playlist_dict = json.loads(self.master_playlist_file.read_text())
+        custom_dict = self.read_custom_playlists()
+        playlist_dict = {**playlist_dict, **custom_dict}
+
+        master_track_file = Path(Path.cwd().parents[0] / "cache" / "track_master_list.json")
+        master_track_dict = json.loads(master_track_file.read_text())
+
+        for playlist in playlist_dict:
+            playlist_file_path = Path.cwd().parents[0] / "playlists" / (playlist + ".json")
+            playlist_tracks = json.loads(playlist_file_path.read_text())
+
+            playlist_m3u = Path(Path.cwd().parents[0] / "playlists" / (playlist + ".m3u"))
+            if not playlist_m3u.exists():
+                playlist_m3u.touch()
+
+            playlist_m3u.write_text("")
+
+            with playlist_m3u.open("a") as append_file:
+                for track in playlist_tracks:
+                    track_file_path = master_track_dict[track]["download_location"]
+                    append_file.write(track_file_path + "\n")

@@ -17,6 +17,7 @@ I've decided that the 1.x branch will remain terminal-only. I'll try to backport
  - Ability to track user-specified playlists, set in `custom_playlists.json`.
  - Logging (`logs` folder, new log each run)
  - Option to not use iTunes
+ - Support for creating `m3u` playlist files
 
 ## 1.5
 
