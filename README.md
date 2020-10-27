@@ -16,7 +16,7 @@ Storing music locally (like on **iTunes**) is great because there aren't any ong
 So, this aims to combine the best of both worlds.
 
 
-## Contents
+## Usage
 
 The program files can be found in the directory `ideemyouworthy`. `main.py` is the main script; run that. It's written for [Python 3.8](https://www.python.org/downloads/). 
 
