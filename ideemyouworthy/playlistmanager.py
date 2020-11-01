@@ -172,5 +172,8 @@ class PlaylistManager:
 
             with playlist_m3u.open("a") as append_file:
                 for track in playlist_tracks:
-                    track_file_path = master_track_dict[track]["download_location"]
-                    append_file.write(track_file_path + "\n")
+                    try:
+                        track_file_path = master_track_dict[track]["download_location"]
+                        append_file.write(track_file_path + "\n")
+                    except:
+                        ""
