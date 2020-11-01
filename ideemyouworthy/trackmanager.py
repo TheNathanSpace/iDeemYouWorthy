@@ -141,7 +141,6 @@ class TrackManager:
                             if itunes_location == extra_track:
                                 track.Delete()
                                 extra_count += 1
-                                print("deleted " + playlist_edits[playlist]["extra_tracks"][extra_track])
                         except:
                             ""
             if playlist_edits[playlist]["missing_tracks"]:
@@ -150,7 +149,6 @@ class TrackManager:
                     try:
                         itunes_playlists_dict[playlist].AddFile(missing_track)
                         missing_count += 1
-                        print("added " + missing_track)
 
                     except:
                         print(missing_track + " could not be added to iTunes. The max file path length on Windows is 260; the length of this file path is " + str(len(missing_track)))

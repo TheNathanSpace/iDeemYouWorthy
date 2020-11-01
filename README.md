@@ -82,7 +82,7 @@ I'm getting some stack overflow error!
 > This happens when you overload deemix, trying to download too many tracks at once. Currently, the best fix is to only download something like 500 tracks at a time. Use the custom playlist file to control which playlists are downloaded.
 
 I'm having trouble with ________, what's going on?
- > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-ithinknformation).
+ > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-information).
 
 
 ## Contact Information
