@@ -3,6 +3,7 @@
 ### Future Plans
 
  - GUI to sign in/add credentials, manage tracked playlists, and schedule auto-run
+ - [youtube-dl](https://youtube-dl.org/) integration for tracks that can't be found on deezer
 
 ## 1.6 (terminal branch)
 
