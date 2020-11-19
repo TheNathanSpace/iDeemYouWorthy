@@ -4,6 +4,7 @@ cache/
 playlists/
 .idea/
 logs
+venv/
 
 iTunesCOM.chw
 iTunesCOM.chm

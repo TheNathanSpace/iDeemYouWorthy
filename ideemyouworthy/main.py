@@ -12,11 +12,15 @@ from playlistmanager import PlaylistManager
 from trackmanager import TrackManager
 from downloadfinished_messageinterface import DownloadFinishedMessageInterface
 from logger import Logger
+from youtubemanager import YoutubeManager
 
 logger = Logger()
 
 account_manager = AccountManager(logger)
 account_manager.login_spotify()
+
+music_directory = str(Path.cwd().parents[0] / "music")
+youtube_manager = YoutubeManager(logger, account_manager.spotify_manager, music_directory)
 
 playlist_manager = PlaylistManager(logger, account_manager)
 
@@ -52,7 +56,7 @@ if len(tracks_to_download) > 0:
     logger.log("Downloading " + str(len(tracks_to_download)) + " tracks")
     configFolder = getConfigFolder()
     settings = Settings(configFolder).settings
-    settings["downloadLocation"] = str(Path.cwd().parents[0] / "music")
+    settings["downloadLocation"] = music_directory
     spotify_helper = SpotifyHelper(configFolder)
     queue_manager = QueueManager()
 
@@ -64,6 +68,8 @@ if len(tracks_to_download) > 0:
     message_interface = DownloadFinishedMessageInterface(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager, use_itunes)
 
     queue_list = list()
+    youtube_list = list()
+
     for track in tracks_to_download:
         split_uri = track.split(":")
 
@@ -73,13 +79,31 @@ if len(tracks_to_download) > 0:
             spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
             deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
 
-            if not deezer_id == 0:
+            if not deezer_id[0] == "0":
                 deezer_uuid = "track_" + str(deezer_id) + "_3"
                 downloaded_tracks[track] = deezer_uuid
 
                 queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id))
+            else:  # todo: finish
+                search_string = youtube_manager.get_search_string(split_uri[2])
+                search_result_dict = youtube_manager.search_yt(search_string)
+                first_result = search_result_dict[0]["url_suffix"]
+                youtube_list.append(first_result)
+                downloaded_tracks[track] = first_result
 
-    queue_manager.addToQueue(deezer_object, spotify_helper, queue_list, settings, interface = message_interface)
+    logger.log("Downloading " + str(len(queue_list)) + " deezer tracks")
+    logger.log("Downloading " + str(len(youtube_list)) + " YouTube tracks")
+
+    if len(youtube_list) != 0:
+        youtube_manager.url_list = youtube_list
+        message_interface.youtube_manager = youtube_manager
+
+    if len(queue_list) != 0:
+        queue_manager.addToQueue(deezer_object, spotify_helper, queue_list, settings, interface = message_interface)
+    else:
+        youtube_manager.update_objects(downloaded_tracks, new_playlists, playlist_changes, use_itunes, track_manager)
+        youtube_manager.start_download_process()
+
 else:
     logger.log("Downloading 0 tracks")
 

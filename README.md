@@ -66,16 +66,11 @@ You are not giving me your password! These tokens are used to *avoid* sharing yo
  2. You should have your `ARL` copied.
 
 
-## FAQ
+## FAQ/Misc. Notes
 
 Does this duplicate tracks if you have two playlists with the same track?
  > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically
 
-I'm having trouble with this file.
-
-> If you have local files in your Spotify playlist, they'll be printed to `cache/problematic_tracks.txt`. You can figure out what to do with them.
-
-> If a file's path size is over 260, it will be printed to `cache/problematic_tracks.txt`. It cannot be added to iTunes on Windows.
 
 I'm getting some stack overflow error!
 
@@ -84,6 +79,15 @@ I'm getting some stack overflow error!
 I'm having trouble with ________, what's going on?
  > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-information).
 
+#### Misc. notes:
+
+> **You cannot track two playlists that have the same name.** I haven't tested it, but it would cause *so many problems*. It would have been *very* annoying for me to have built this program with that in mind. Why would you even have two playlists with the same name in the first place?
+
+> If you have local files in your Spotify playlist, they'll be printed to `cache/problematic_tracks.txt`. You can figure out what to do with them.
+
+> If a file's path size is over 260, it will be printed to `cache/problematic_tracks.txt`. It cannot be added to iTunes on Windows.
+
+> In order to speed up the program, the download state is not saved until the end. If the program crashes in the middle, then, there will be some problems. It'll probably keep crashing. Running it again might fix it, but if it doesn't, you'll need to delete the necessary playlist files in the `playlists` folder. If that still doesn't fix it, you'll also need to delete `cache/track_master_list.json`.
 
 ## Contact Information
 

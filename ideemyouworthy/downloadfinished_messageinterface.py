@@ -1,3 +1,5 @@
+import json
+
 from deemix.app.messageinterface import MessageInterface
 
 
@@ -13,6 +15,8 @@ class DownloadFinishedMessageInterface(MessageInterface):
 
         self.use_itunes = use_itunes
 
+        self.youtube_manager = None
+
     def send(self, message, value = None):  # TODO: Is there a way to make this more modular so that if it crashes it doesn't lose the progress? I think deezer should make it okay, but still...
         if message == "updateQueue" and "downloaded" in value:
             if value["downloaded"]:
@@ -22,4 +26,8 @@ class DownloadFinishedMessageInterface(MessageInterface):
                         self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": value["downloadPath"]}
 
                 if len(self.queue_manager.queue) == 0:
-                    self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
+                    if self.youtube_manager is None:
+                        self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
+                    else:
+                        self.youtube_manager.update_objects(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes, self.track_manager)
+                        self.youtube_manager.start_download_process()

@@ -82,8 +82,8 @@ class TrackManager:
         self.logger.log("Cleared duplicate downloads")
         return tracks_to_download
 
-    def finished_queue(self, downloaded_tracks, new_playlists, playlist_changes, use_itunes):  # TODO: Keep logging
-        self.logger.log("Queue finished downloading")
+    def finished_queue(self, downloaded_tracks, new_playlists, playlist_changes, use_itunes):
+        self.logger.log("deezer and YouTube queues finished downloading")
 
         old_master_track_dict = json.loads(self.master_track_file.read_text())
         for track in downloaded_tracks:
@@ -113,7 +113,7 @@ class TrackManager:
                 playlists_left -= 1
 
             for playlist in new_playlists:
-                if not playlist in itunes_playlists_dict.keys():
+                if playlist not in itunes_playlists_dict.keys():
                     new_playlist = itunes.CreatePlayList(playlist)
                     itunes_playlists_dict[playlist] = new_playlist
 
