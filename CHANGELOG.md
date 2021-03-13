@@ -7,6 +7,15 @@
 
 ## 1.x (Terminal)
 
+### 1.8
+
+Something went wrong along the way... but now it should be fixed!
+
+##### Changed
+
+ - Updated to the latest version of deemix
+ - A ton of bug fixes, mostly involving edge cases and Youtube downloads
+
 ### 1.7
 
 `youtube-dl` integration was surprisingly simple to add. Don't mind if I do!

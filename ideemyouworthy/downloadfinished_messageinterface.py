@@ -1,6 +1,5 @@
-import json
-
 from deemix.app.messageinterface import MessageInterface
+from tinytag import TinyTag
 
 
 class DownloadFinishedMessageInterface(MessageInterface):
@@ -17,6 +16,8 @@ class DownloadFinishedMessageInterface(MessageInterface):
 
         self.youtube_manager = None
 
+        self.deezer_tracks_to_download = None
+
     def send(self, message, value = None):  # TODO: Is there a way to make this more modular so that if it crashes it doesn't lose the progress? I think deezer should make it okay, but still...
         if message == "updateQueue" and "downloaded" in value:
             if value["downloaded"]:
@@ -24,6 +25,8 @@ class DownloadFinishedMessageInterface(MessageInterface):
                 for track in self.downloaded_tracks:
                     if self.downloaded_tracks[track] == value["uuid"]:
                         self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": value["downloadPath"]}
+                        tags = TinyTag.get(value["downloadPath"])
+                        print("[" + str(self.deezer_tracks_to_download - len(self.queue_manager.queue)) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + tags.title)
 
                 if len(self.queue_manager.queue) == 0:
                     if self.youtube_manager is None:

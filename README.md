@@ -18,11 +18,7 @@ So, this aims to combine the best of both worlds.
 
 ## Usage
 
-The program files can be found in the directory `ideemyouworthy`. `main.py` is the main script; run that. It's written for [Python 3.8](https://www.python.org/downloads/). 
-
-After I hit 2.0 (GUI!) I'll probably package it into a nice `.exe`.
-
-Check out the [changelog](CHANGELOG.md)!
+The program files can be found in the directory `ideemyouworthy`. `main.py` is the main script; run that. It's written for [Python 3](https://www.python.org/downloads/). 
 
 ### Installation/Operation
 
@@ -32,7 +28,7 @@ Download the `.zip` file in "Releases". Unzip it. Navigate to `ideemyouworthy` w
  - `python3 main.py`
  - `main.py`
  
-It should be pretty straightforward from there. 
+It should be pretty straightforward from there. Music will be downloaded into the `Music` directory, which will be at the same level as the `ideemyouworthy` folder containing the code. To keep your directory clean, you should keep the entire thing in a parent directory, for example: `D:/Downloaded Music/ideemyouworthy`.
 
 You'll need to add your Spotify and deezer account information to the `account_info.json` file. This file will be generated upon the first execution of `main.py`. Once it's there, gather the information following the steps below and paste it in. To verify the `.json` file is still formatted correctly, you can use https://jsonlint.com.
 
@@ -89,6 +85,8 @@ I'm having trouble with ________, what's going on?
 
 > In order to speed up the program, the download state is not saved until the end. If the program crashes in the middle, then, there will be some problems. It'll probably keep crashing. Running it again might fix it, but if it doesn't, you'll need to delete the necessary playlist files in the `playlists` folder. If that still doesn't fix it, you'll also need to delete `cache/track_master_list.json`.
 
+> There's currently a bug where tracks downloaded from YouTube aren't added to iTunes on the first pass. I think it arises from FFMPEG not being done with its processing yet. They should be caught during iTunes re-syncing (assuming you specify you want it done).
+
 ## Contact Information
 
 **Discord:** TheKingElessar#3226
@@ -100,4 +98,4 @@ I'm having trouble with ________, what's going on?
 
 ## Legality
 
-What are they gonna do, stab me?
+What are they gonna do, ~~stab me~~ storm my Capitol?

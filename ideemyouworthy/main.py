@@ -1,10 +1,13 @@
 import collections
+import logging
+import os
+import shutil
 from pathlib import Path
 
 from deemix.utils.localpaths import getConfigFolder
 from deemix.app.settings import Settings
 from deemix.app.spotifyhelper import SpotifyHelper
-from deemix.api.deezer import Deezer
+from deezer import Deezer
 from deemix.app.queuemanager import QueueManager
 
 from accountmanager import AccountManager
@@ -14,7 +17,21 @@ from downloadfinished_messageinterface import DownloadFinishedMessageInterface
 from logger import Logger
 from youtubemanager import YoutubeManager
 
-logger = Logger()
+# START TESTING
+
+# delete_path = Path(Path.cwd().parent / "playlists")
+# if delete_path.exists(): shutil.rmtree(delete_path)
+#
+# delete_path = Path(Path.cwd().parent / "music")
+# if delete_path.exists(): shutil.rmtree(delete_path)
+#
+# delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
+# if delete_path.exists(): os.remove(delete_path)
+
+# END TESTING
+
+log_manager = Logger()
+logger = logging.getLogger('iDeemYouWorthy')
 
 account_manager = AccountManager(logger)
 account_manager.login_spotify()
@@ -53,12 +70,12 @@ playlist_changes = track_manager.find_new_tracks(new_playlists)
 tracks_to_download = track_manager.clear_duplicate_downloads(playlist_changes)
 
 if len(tracks_to_download) > 0:
-    logger.log("Downloading " + str(len(tracks_to_download)) + " tracks")
+    logger.info("Downloading " + str(len(tracks_to_download)) + " tracks total")
     configFolder = getConfigFolder()
     settings = Settings(configFolder).settings
     settings["downloadLocation"] = music_directory
     spotify_helper = SpotifyHelper(configFolder)
-    queue_manager = QueueManager()
+    queue_manager = QueueManager(spotify_helper)
 
     deezer_object = Deezer()
 
@@ -80,35 +97,39 @@ if len(tracks_to_download) > 0:
             deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
 
             if not deezer_id[0] == "0":
-                deezer_uuid = "track_" + str(deezer_id) + "_3"
+                deezer_uuid = "track_" + str(deezer_id[0]) + "_3"
                 downloaded_tracks[track] = deezer_uuid
 
-                queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id))
-            else:  # todo: finish
+                queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id[0]))
+            else:
                 search_string = youtube_manager.get_search_string(split_uri[2])
-                search_result_dict = youtube_manager.search_yt(search_string)
-                first_result = search_result_dict[0]["url_suffix"]
+                first_result = youtube_manager.search(search_string)
                 youtube_list.append(first_result)
                 downloaded_tracks[track] = first_result
 
-    logger.log("Downloading " + str(len(queue_list)) + " deezer tracks")
-    logger.log("Downloading " + str(len(youtube_list)) + " YouTube tracks")
+    logger.info("Downloading " + str(len(queue_list)) + " deezer tracks")
+    logger.info("Downloading " + str(len(youtube_list)) + " YouTube tracks")
 
     if len(youtube_list) != 0:
         youtube_manager.url_list = youtube_list
+        youtube_manager.youtube_tracks_to_download = len(youtube_list)
         message_interface.youtube_manager = youtube_manager
 
     if len(queue_list) != 0:
-        queue_manager.addToQueue(deezer_object, spotify_helper, queue_list, settings, interface = message_interface)
+        message_interface.deezer_tracks_to_download = len(queue_list)
+        queue_manager.addToQueue(deezer_object, queue_list, settings, interface = message_interface)
     else:
         youtube_manager.update_objects(downloaded_tracks, new_playlists, playlist_changes, use_itunes, track_manager)
         youtube_manager.start_download_process()
 
 else:
-    logger.log("Downloading 0 tracks")
+    logger.info("Downloading 0 tracks")
 
 if use_itunes and fix_itunes:
     track_manager.verify_itunes()
 
 if make_m3u:
     playlist_manager.create_m3u()
+
+if not track_manager.has_finished_queue:
+    track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
