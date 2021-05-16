@@ -19,7 +19,7 @@ class PlaylistManager:
         Path.mkdir(Path.cwd().parents[0] / "cache", exist_ok = True)
         if not self.master_playlist_file.exists():
             self.master_playlist_file.touch()
-            self.master_playlist_file.write_text(json.dumps({}))
+            self.master_playlist_file.write_text(json.dumps({}), encoding = "utf-8")
             self.logger.info("Created master playlist file")
 
         self.custom_playlist_file = Path(Path.cwd().parents[0] / "custom_playlists.json")
@@ -28,7 +28,7 @@ class PlaylistManager:
             sample_custom_playlists = collections.OrderedDict()
             sample_custom_playlists["https://open.spotify.com/playlist/3p22aU2NEvY8KErZAoWSJD"] = "[example--will not be used]"
             sample_custom_playlists["https://open.spotify.com/playlist/2JD9j9iGtPGaupLf0NwZXe"] = "[example--will not be used]"
-            self.custom_playlist_file.write_text(json.dumps(sample_custom_playlists, indent = 4, ensure_ascii = False))
+            self.custom_playlist_file.write_text(json.dumps(sample_custom_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
             self.logger.info("Created custom playlist file")
 
     def uri_to_url(self, uri):
@@ -69,16 +69,16 @@ class PlaylistManager:
             file_path = Path.cwd().parents[0] / "playlists" / (playlist + ".json")
             if not file_path.exists():
                 file_path.touch()
-                file_path.write_text(json.dumps({}))
+                file_path.write_text(json.dumps({}), encoding = "utf-8")
                 new_file_count += 1
 
         self.logger.info("Created " + str(new_file_count) + " new playlist files")
 
     def store_user_playlists(self, new_playlists):
-        self.master_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False))
+        self.master_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
     def store_custom_playlists(self, new_playlists):
-        self.custom_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False))
+        self.custom_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
     def read_custom_playlists(self):
         custom_playlists_dict = json.loads(self.custom_playlist_file.read_text())
@@ -158,7 +158,7 @@ class PlaylistManager:
         playlist_dict = {**playlist_dict, **custom_dict}
 
         master_track_file = Path(Path.cwd().parents[0] / "cache" / "track_master_list.json")
-        master_track_dict = json.loads(master_track_file.read_text())
+        master_track_dict = json.loads(master_track_file.read_text(encoding = "utf-8"))
 
         for playlist in playlist_dict:
             playlist_file_path = Path.cwd().parents[0] / "playlists" / (playlist + ".json")
@@ -168,7 +168,7 @@ class PlaylistManager:
             if not playlist_m3u.exists():
                 playlist_m3u.touch()
 
-            playlist_m3u.write_text("")
+            playlist_m3u.write_text("", encoding = "utf-8")
 
             with playlist_m3u.open("a") as append_file:
                 for track in playlist_tracks:

@@ -16,7 +16,7 @@ class TrackManager:
         self.master_track_file = Path(Path.cwd().parents[0] / "cache" / "track_master_list.json")
         if not self.master_track_file.exists():
             self.master_track_file.touch()
-            self.master_track_file.write_text(json.dumps({}))
+            self.master_track_file.write_text(json.dumps({}), encoding = "utf-8")
             self.logger.info("Created master track file")
 
         self.problematic_tracks_file = Path(Path.cwd().parents[0] / "cache" / "problematic_tracks.txt")
@@ -64,12 +64,12 @@ class TrackManager:
             playlist_changes[playlist] = playlist_differences
             self.logger.info(playlist + ": Found " + str(len(playlist_differences)) + " new tracks")
 
-            playlist_file_path.write_text(json.dumps(new_playlist_songs, indent = 4, ensure_ascii = False))
+            playlist_file_path.write_text(json.dumps(new_playlist_songs, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
         return playlist_changes
 
     def clear_duplicate_downloads(self, playlist_changes):
-        master_track_dict = json.loads(self.master_track_file.read_text())
+        master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
         master_track_set = util.dictToSet(master_track_dict)
 
         tracks_to_download = set()
@@ -88,13 +88,13 @@ class TrackManager:
         self.has_finished_queue = True
         self.logger.info("deezer and YouTube queues finished downloading")
 
-        old_master_track_dict = json.loads(self.master_track_file.read_text())
-        for track in downloaded_tracks:
-            if track not in old_master_track_dict and isinstance(downloaded_tracks[track], dict):
-                old_master_track_dict[track] = downloaded_tracks[track]
-
-        self.master_track_file.write_text(json.dumps(old_master_track_dict, indent = 4, ensure_ascii = False))
-        self.logger.info("Saved master track list to file")
+        old_master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
+        # for track in downloaded_tracks:
+        #     if track not in old_master_track_dict and isinstance(downloaded_tracks[track], dict):
+        #         old_master_track_dict[track] = downloaded_tracks[track]
+        #
+        # self.master_track_file.write_text(json.dumps(old_master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
+        # self.logger.info("Saved master track list to file")
 
         if use_itunes:
             self.logger.info("Using iTunes")
@@ -187,11 +187,11 @@ class TrackManager:
         for playlist in itunes_playlists_dict:
 
             playlist_file_path = Path.cwd().parents[0] / "playlists" / (playlist + ".json")
-            official_playlist_dict = json.loads(playlist_file_path.read_text()) # todo: this doesn't allow other playlists in itunes
+            official_playlist_dict = json.loads(playlist_file_path.read_text())  # todo: this doesn't allow other playlists in itunes
             official_locations = set()
 
             for track in official_playlist_dict:
-                master_file_dict = json.loads(self.master_track_file.read_text())
+                master_file_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
                 if track in master_file_dict:
                     track_location = master_file_dict[track]["download_location"]
                     official_locations.add(track_location)

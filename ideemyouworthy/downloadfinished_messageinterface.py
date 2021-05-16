@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from deemix.app.messageinterface import MessageInterface
 from tinytag import TinyTag
 
@@ -18,7 +21,13 @@ class DownloadFinishedMessageInterface(MessageInterface):
 
         self.deezer_tracks_to_download = None
 
-    def send(self, message, value = None):  # TODO: Is there a way to make this more modular so that if it crashes it doesn't lose the progress? I think deezer should make it okay, but still...
+        self.master_track_file = Path(Path.cwd().parents[0] / "cache" / "track_master_list.json")
+        if not self.master_track_file.exists():
+            self.master_track_file.touch()
+            self.master_track_file.write_text(json.dumps({}), encoding = "utf-8")
+            self.logger.info("Created master track file")
+
+    def send(self, message, value = None):
         if message == "updateQueue" and "downloaded" in value:
             if value["downloaded"]:
                 # {'uuid': self.queueItem.uuid, 'downloaded': True, 'downloadPath': writepath}
@@ -28,9 +37,16 @@ class DownloadFinishedMessageInterface(MessageInterface):
                         tags = TinyTag.get(value["downloadPath"])
                         print("[" + str(self.deezer_tracks_to_download - len(self.queue_manager.queue)) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + tags.title)
 
-                if len(self.queue_manager.queue) == 0:
-                    if self.youtube_manager is None:
-                        self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
-                    else:
-                        self.youtube_manager.update_objects(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes, self.track_manager)
-                        self.youtube_manager.start_download_process()
+                        master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
+                        master_track_dict[track] = self.downloaded_tracks[track]
+                        self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
+                        break
+
+        if len(self.queue_manager.queue) == 0 and not self.track_manager.has_finished_queue:
+            self.track_manager.has_finished_queue = True
+
+            if self.youtube_manager is None:
+                self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
+            else:
+                self.youtube_manager.update_objects(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes, self.track_manager)
+                self.youtube_manager.start_download_process()

@@ -16,7 +16,7 @@ class AccountManager:
         if not self.account_info_file.exists():
 
             self.account_info_file.touch()
-            self.account_info_file.write_text(json.dumps(self.account_info_dict, indent = 4, ensure_ascii = False))
+            self.account_info_file.write_text(json.dumps(self.account_info_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
             self.logger.info("Created account info file")
 
