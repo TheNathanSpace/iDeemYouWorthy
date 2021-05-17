@@ -19,14 +19,14 @@ from youtubemanager import YoutubeManager
 
 # START TESTING
 
-delete_path = Path(Path.cwd().parent / "playlists")
-if delete_path.exists(): shutil.rmtree(delete_path)
-
-delete_path = Path(Path.cwd().parent / "music")
-if delete_path.exists(): shutil.rmtree(delete_path)
-
-delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
-if delete_path.exists(): os.remove(delete_path)
+# delete_path = Path(Path.cwd().parent / "playlists")
+# if delete_path.exists(): shutil.rmtree(delete_path)
+#
+# delete_path = Path(Path.cwd().parent / "music")
+# if delete_path.exists(): shutil.rmtree(delete_path)
+#
+# delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
+# if delete_path.exists(): os.remove(delete_path)
 
 # END TESTING
 
