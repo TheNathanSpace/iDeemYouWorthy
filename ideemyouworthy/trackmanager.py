@@ -34,6 +34,16 @@ class TrackManager:
             tracks.extend(results['items'])
         return tracks
 
+    def get_track_data(self, uri):
+        track = self.spotify_manager.track(uri)
+        track_data = {}
+        track_data["name"] = track["name"]
+        track_data["track_number"] = track["track_number"]
+        track_data["album"] = track["album"]["name"]
+        track_data["artist"] = track["artists"][0]["name"]
+
+        return track_data
+
     def find_new_tracks(self, new_playlists):
         playlist_changes = collections.OrderedDict()
 
@@ -64,9 +74,13 @@ class TrackManager:
             playlist_changes[playlist] = playlist_differences
             self.logger.info(playlist + ": Found " + str(len(playlist_differences)) + " new tracks")
 
-            playlist_file_path.write_text(json.dumps(new_playlist_songs, indent = 4, ensure_ascii = False), encoding = "utf-8")
-
         return playlist_changes
+
+    def add_track_to_playlist(self, playlist_name, track_uri):
+        playlist_file_path = Path.cwd().parents[0] / "playlists" / (playlist_name + ".json")
+        playlist_dict = json.loads(playlist_file_path.read_text(encoding = "utf-8"))
+        playlist_dict[track_uri] = None
+        playlist_file_path.write_text(json.dumps(playlist_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
     def clear_duplicate_downloads(self, playlist_changes):
         master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
@@ -125,6 +139,8 @@ class TrackManager:
                 for track in playlist_changes[playlist]:
                     if track in old_master_track_dict and isinstance(old_master_track_dict[track], dict):  # (this will be true unless there was a downloading error)
                         itunes_playlists_dict[playlist].AddFile(old_master_track_dict[track]["download_location"])
+                        self.add_track_to_playlist(playlist, track)
+                        print("Added track " + track + " to playlist " + playlist)
 
             self.logger.info("Finished updating iTunes")
         else:
@@ -160,8 +176,10 @@ class TrackManager:
                         self.logger.info(missing_track + " could not be added to iTunes. File path length: " + file_path_length)
                         self.store_problematic_track("(" + file_path_length + ") " + missing_track)
 
-            self.logger.info(playlist + ": Removed " + str(extra_count) + " extra tracks")
-            self.logger.info(playlist + ": Added " + str(missing_count) + " missing tracks")
+            if extra_count > 0:
+                self.logger.info(playlist + ": Removed " + str(extra_count) + " extra tracks")
+            if missing_count > 0:
+                self.logger.info(playlist + ": Added " + str(missing_count) + " missing tracks")
 
     # This verifies that the iTunes and cached playlists agree
     def verify_itunes(self):
@@ -187,7 +205,11 @@ class TrackManager:
         for playlist in itunes_playlists_dict:
 
             playlist_file_path = Path.cwd().parents[0] / "playlists" / (playlist + ".json")
-            official_playlist_dict = json.loads(playlist_file_path.read_text())  # todo: this doesn't allow other playlists in itunes
+
+            if not playlist_file_path.exists():
+                continue
+
+            official_playlist_dict = json.loads(playlist_file_path.read_text())
             official_locations = set()
 
             for track in official_playlist_dict:

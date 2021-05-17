@@ -42,11 +42,11 @@ class DownloadFinishedMessageInterface(MessageInterface):
                         self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
                         break
 
-        if len(self.queue_manager.queue) == 0 and not self.track_manager.has_finished_queue:
-            self.track_manager.has_finished_queue = True
+            if len(self.queue_manager.queue) == 0 and not self.track_manager.has_finished_queue:
+                self.track_manager.has_finished_queue = True
 
-            if self.youtube_manager is None:
-                self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
-            else:
-                self.youtube_manager.update_objects(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes, self.track_manager)
-                self.youtube_manager.start_download_process()
+                if self.youtube_manager is None:
+                    self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
+                else:
+                    self.youtube_manager.update_objects(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes, self.track_manager)
+                    self.youtube_manager.start_download_process()

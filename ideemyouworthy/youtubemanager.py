@@ -1,18 +1,18 @@
 import json
+import os
 import re
-import subprocess
 from pathlib import Path
-import os, sys
 
 import mutagen
-from tinytag import TinyTag
 from youtube_search import YoutubeSearch
+from mutagen.id3 import ID3, TIT2, TRCK, TALB, TPE1
+from mutagen import File
 
 import youtube_dl
 
 
 class YoutubeManager:
-    def __init__(self, logger, spotify_manager, music_directory):
+    def __init__(self, logger, spotify_manager, music_directory, youtube_tag_dict):
         self.logger = logger
         self.spotify_manager = spotify_manager
 
@@ -26,6 +26,8 @@ class YoutubeManager:
 
         self.youtube_tracks_to_download = None
         self.current_download_count = 0
+
+        self.youtube_tag_dict = youtube_tag_dict
 
         ydl_opts = {
             'format': 'bestaudio/best',
@@ -97,45 +99,24 @@ class YoutubeManager:
     def progress_hook(self, response):
         if response["status"] == "finished":
             file_name = response["filename"]
-            file_name = re.search("(.*\.)([a-zA-Z1-9]*)$", file_name).group(1) + "mp3"
+            fake_path = re.search("(.*\.)([a-zA-Z1-9]*)$", file_name).group(1) + "mp3"
 
-            print("[" + str(self.current_download_count) + "/" + str(self.youtube_tracks_to_download) + "] Downloaded " + file_name)
-
-            # spotify_uri = None
-            #
-            # # downloaded_tracks uses full spotify uri
-            # full_tags_dict = json.loads(self.youtube_tag_cache_file.read_text())
-            # tags_dict = full_tags_dict[spotify_uri]
-            # tags_dict["title"]
-            # tags_dict["album_artist"]
+            spotify_uri = None
 
             for track in self.downloaded_tracks:
                 if self.downloaded_tracks[track] == self.current_download_url:
-                    self.downloaded_tracks[track] = {"youtube_url": self.current_download_url, "download_location": file_name}
-
-                    master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
-                    master_track_dict[track] = self.downloaded_tracks[track]
-                    self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
+                    spotify_uri = track
                     break
 
-                    # spotify_uri = track
+            self.youtube_tag_dict[spotify_uri]["filepath"] = fake_path
 
-            # from mutagen.easyid3 import EasyID3
-            # from mutagen.id3 import ID3
-            # from mutagen import File, MutagenError
-            # try:
-            #     tagged_file = EasyID3(file_name)
-            # except mutagen.id3.ID3NoHeaderError:
-            #     tagged_file = File(file_name)
-            #     print(tagged_file.items())
-            #     tagged_file.add_tags()
-            #     tagged_file.save()
-            #     tagged_file = EasyID3(file_name)
-            #
-            # tagged_file["title"] = file_name
-            # tagged_file.save()
+            print("[" + str(self.current_download_count) + "/" + str(self.youtube_tracks_to_download) + "] Downloaded " + fake_path)
 
-            # TODO: Add tags here
+            self.downloaded_tracks[spotify_uri] = {"youtube_url": self.current_download_url, "download_location": fake_path}
+
+            master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
+            master_track_dict[spotify_uri] = self.downloaded_tracks[spotify_uri]
+            self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
             if len(self.url_list) != 0:
                 self.continue_download_process()
@@ -143,6 +124,55 @@ class YoutubeManager:
                 self.currently_downloading = False
                 self.logger.info("Finished YouTube downloads")
                 self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
+
+    def add_tags(self):
+
+        def remove(value, deletechars):
+            for c in deletechars:
+                value = value.replace(c, '')
+            return value
+
+        for uri in self.youtube_tag_dict:
+
+            if "filepath" in self.youtube_tag_dict[uri]:
+                file_path = Path(self.youtube_tag_dict[uri]["filepath"])
+
+                try:
+                    tagged_file = ID3()
+                except mutagen.id3.ID3NoHeaderError:
+                    tagged_file = File()
+                    tagged_file.add_tags()
+                    tagged_file.save()
+                    tagged_file = ID3()
+
+                if self.youtube_tag_dict[uri]["name"]:
+                    tagged_file["TIT2"] = TIT2(encoding = 3, text = self.youtube_tag_dict[uri]["name"])
+                if self.youtube_tag_dict[uri]["track_number"]:
+                    try:
+                        tagged_file["TRCK"] = TRCK(encoding = 3, text = str(self.youtube_tag_dict[uri]["track_number"]))
+                    except:
+                        tagged_file["TRCK"] = TRCK(encoding = 3, text = u"1")
+                if self.youtube_tag_dict[uri]["album"]:
+                    tagged_file["TALB"] = TALB(encoding = 3, text = self.youtube_tag_dict[uri]["album"])
+                if self.youtube_tag_dict[uri]["artist"]:
+                    tagged_file["TPE1"] = TPE1(encoding = 3, text = self.youtube_tag_dict[uri]["artist"])
+
+                tagged_file.save(file_path)
+
+                while True:
+                    try:
+                        file_path.rename(file_path)
+                    except:
+                        continue
+                    break
+
+                new_path = Path(file_path.parent / Path(remove(f"{self.youtube_tag_dict[uri]['artist']} - {self.youtube_tag_dict[uri]['name']}.mp3", '\/:*?"<>|')))
+
+                os.rename(file_path, new_path)
+
+                master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
+                master_track_dict[uri]["download_location"] = str(new_path)
+                self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
     def update_objects(self, downloaded_tracks, new_playlists, playlist_changes, use_itunes, track_manager):
         self.downloaded_tracks = downloaded_tracks

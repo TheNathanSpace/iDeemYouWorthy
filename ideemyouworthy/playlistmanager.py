@@ -8,7 +8,7 @@ import win32com
 
 
 class PlaylistManager:
-
+    # todo: don't update playlist files until it's actually downloaded
     def __init__(self, logger, account_manager):
         self.logger = logger
 
@@ -172,7 +172,7 @@ class PlaylistManager:
 
             with playlist_m3u.open("a") as append_file:
                 for track in playlist_tracks:
-                    try:  # TODO: I think this is fixing the exception if the track isn't in the master list, aka isn't on deezer
+                    try:
                         track_file_path = master_track_dict[track]["download_location"]
                         append_file.write(track_file_path + "\n")
                     except:

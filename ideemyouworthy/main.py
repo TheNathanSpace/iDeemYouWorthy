@@ -19,14 +19,14 @@ from youtubemanager import YoutubeManager
 
 # START TESTING
 
-# delete_path = Path(Path.cwd().parent / "playlists")
-# if delete_path.exists(): shutil.rmtree(delete_path)
-#
-# delete_path = Path(Path.cwd().parent / "music")
-# if delete_path.exists(): shutil.rmtree(delete_path)
-#
-# delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
-# if delete_path.exists(): os.remove(delete_path)
+delete_path = Path(Path.cwd().parent / "playlists")
+if delete_path.exists(): shutil.rmtree(delete_path)
+
+delete_path = Path(Path.cwd().parent / "music")
+if delete_path.exists(): shutil.rmtree(delete_path)
+
+delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
+if delete_path.exists(): os.remove(delete_path)
 
 # END TESTING
 
@@ -37,7 +37,9 @@ account_manager = AccountManager(logger)
 account_manager.login_spotify()
 
 music_directory = str(Path.cwd().parents[0] / "music")
-youtube_manager = YoutubeManager(logger, account_manager.spotify_manager, music_directory)
+
+youtube_tag_dict = collections.OrderedDict()
+youtube_manager = YoutubeManager(logger, account_manager.spotify_manager, music_directory, youtube_tag_dict)
 
 playlist_manager = PlaylistManager(logger, account_manager)
 
@@ -102,6 +104,8 @@ if len(tracks_to_download) > 0:
 
                 queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id[0]))
             else:
+                youtube_tag_dict[track] = track_manager.get_track_data(track)
+
                 search_string = youtube_manager.get_search_string(split_uri[2])
                 first_result = youtube_manager.search(search_string)
                 youtube_list.append(first_result)
@@ -111,9 +115,11 @@ if len(tracks_to_download) > 0:
     logger.info("Downloading " + str(len(queue_list)) + " deezer tracks")
     logger.info("Downloading " + str(len(youtube_list)) + " YouTube tracks")
 
-    if len(youtube_list) != 0:
+    youtube_num = len(youtube_list)
+
+    if youtube_num != 0:
         youtube_manager.url_list = youtube_list
-        youtube_manager.youtube_tracks_to_download = len(youtube_list)
+        youtube_manager.youtube_tracks_to_download = youtube_num
         message_interface.youtube_manager = youtube_manager
 
     if len(queue_list) != 0:
@@ -122,6 +128,9 @@ if len(tracks_to_download) > 0:
     else:
         youtube_manager.update_objects(downloaded_tracks, new_playlists, playlist_changes, use_itunes, track_manager)
         youtube_manager.start_download_process()
+
+    if youtube_num != 0:
+        youtube_manager.add_tags()
 
 else:
     logger.info("Downloading 0 tracks")

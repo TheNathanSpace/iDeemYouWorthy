@@ -7,6 +7,19 @@
 
 ## 1.x (Terminal)
 
+### 1.9
+
+Spending four hours squashing these bugs is probably better than spending four hours downloading the same things over and over again when it crashes.
+
+##### Added
+
+ - Songs downloaded from YouTube now get ID3 tags (title, artist, etc).
+
+##### Changed
+
+ - Tracks are now cached as soon as they're downloaded, which makes the program much more crash-resistant.
+ - Playlist files are now updated as the songs are added to iTunes, which makes the program much more crash-resistant and accurate.
+
 ### 1.8
 
 Something went wrong along the way... but now it should be fixed!
