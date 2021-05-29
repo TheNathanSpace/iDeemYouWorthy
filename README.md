@@ -91,7 +91,6 @@ I'm having trouble with ________, what's going on?
 
 **Email:** thekingelessar1@gmail.com
 
-
 ## Legality
 
 What are they gonna do, ~~stab me~~ storm my Capitol?
