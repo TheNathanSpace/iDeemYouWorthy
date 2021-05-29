@@ -8,7 +8,7 @@ import win32com
 
 
 class PlaylistManager:
-    # todo: don't update playlist files until it's actually downloaded
+
     def __init__(self, logger, account_manager):
         self.logger = logger
 

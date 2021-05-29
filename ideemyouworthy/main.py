@@ -110,7 +110,6 @@ if len(tracks_to_download) > 0:
                 first_result = youtube_manager.search(search_string)
                 youtube_list.append(first_result)
                 downloaded_tracks[track] = first_result
-                # todo: store spotify track info, then read it to tag youtube songs
 
     logger.info("Downloading " + str(len(queue_list)) + " deezer tracks")
     logger.info("Downloading " + str(len(youtube_list)) + " YouTube tracks")

@@ -83,10 +83,6 @@ I'm having trouble with ________, what's going on?
 
 > If a file's path size is over 260, it will be printed to `cache/problematic_tracks.txt`. It cannot be added to iTunes on Windows.
 
-> In order to speed up the program, the download state is not saved until the end. If the program crashes in the middle, then, there will be some problems. It'll probably keep crashing. Running it again might fix it, but if it doesn't, you'll need to delete the necessary playlist files in the `playlists` folder. If that still doesn't fix it, you'll also need to delete `cache/track_master_list.json`.
-
-> There's currently a bug where tracks downloaded from YouTube aren't added to iTunes on the first pass. I think it arises from FFMPEG not being done with its processing yet. They should be caught during iTunes re-syncing (assuming you specify you want it done).
-
 ## Contact Information
 
 **Discord:** TheKingElessar#3226
