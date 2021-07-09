@@ -1,9 +1,11 @@
 import json
 import collections
+import os
 from pathlib import Path
 from urllib.parse import urlparse
 from posixpath import basename, dirname
 
+import requests
 import win32com
 
 
@@ -89,6 +91,24 @@ class PlaylistManager:
             uri_array = uri_playlist.split(":")
 
             playlist_object = self.spotify_manager.playlist(uri_array[2], fields = "name")
+            playlist_cover_url = self.spotify_manager.playlist_cover_image(uri_array[2])[0]["url"]
+
+            Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
+            playlist_cover_file = Path(Path.cwd().parents[0] / "playlists" / (playlist_object["name"] + ".jpg"))
+            if not playlist_cover_file.exists():
+                playlist_cover_file.touch()
+
+            with open(playlist_cover_file, 'wb') as handle:
+                response = requests.get(playlist_cover_url, stream = True)
+
+                if not response.ok:
+                    print(response)
+
+                for block in response.iter_content(1024):
+                    if not block:
+                        break
+
+                    handle.write(block)
 
             del parsed_dict[playlist]
 
@@ -171,9 +191,14 @@ class PlaylistManager:
             playlist_m3u.write_text("", encoding = "utf-8")
 
             with playlist_m3u.open("a") as append_file:
+                append_file.write("#EXTM3U\n")
+                append_file.write("#EXTIMG: front cover\n")
+                append_file.write(playlist + ".jpg\n")
                 for track in playlist_tracks:
                     try:
                         track_file_path = master_track_dict[track]["download_location"]
-                        append_file.write(track_file_path + "\n")
-                    except:
-                        ""
+                        hard_path = Path(track_file_path)
+                        relative_path = os.path.relpath(path = hard_path, start = playlist_m3u.parent)
+                        append_file.write(str(relative_path) + "\n")
+                    except Exception as e:
+                        print(e)

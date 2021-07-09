@@ -110,6 +110,7 @@ class TrackManager:
         # self.master_track_file.write_text(json.dumps(old_master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
         # self.logger.info("Saved master track list to file")
 
+        itunes_playlists_dict = {}
         if use_itunes:
             self.logger.info("Using iTunes")
             itunes = win32com.client.Dispatch("iTunes.Application")
@@ -120,7 +121,6 @@ class TrackManager:
                 if source.Kind == 1:
                     itunes_playlists = source.Playlists
 
-            itunes_playlists_dict = {}
             playlists_left = itunes_playlists.Count
             while playlists_left != 0:
                 playlist = itunes_playlists.Item(playlists_left)
@@ -134,14 +134,15 @@ class TrackManager:
                     new_playlist = itunes.CreatePlayList(playlist)
                     itunes_playlists_dict[playlist] = new_playlist
 
-            # Cycle through playlist changes
-            for playlist in playlist_changes:
-                for track in playlist_changes[playlist]:
-                    if track in old_master_track_dict and isinstance(old_master_track_dict[track], dict):  # (this will be true unless there was a downloading error)
+        # Cycle through playlist changes
+        for playlist in playlist_changes:
+            for track in playlist_changes[playlist]:
+                if track in old_master_track_dict and isinstance(old_master_track_dict[track], dict):  # (this will be true unless there was a downloading error)
+                    if use_itunes:
                         itunes_playlists_dict[playlist].AddFile(old_master_track_dict[track]["download_location"])
-                        self.add_track_to_playlist(playlist, track)
-                        print("Added track " + track + " to playlist " + playlist)
+                    self.add_track_to_playlist(playlist, track)
 
+        if use_itunes:
             self.logger.info("Finished updating iTunes")
         else:
             self.logger.info("Not using iTunes")
