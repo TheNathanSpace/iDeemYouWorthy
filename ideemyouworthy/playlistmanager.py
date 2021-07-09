@@ -102,7 +102,8 @@ class PlaylistManager:
                 response = requests.get(playlist_cover_url, stream = True)
 
                 if not response.ok:
-                    print(response)
+                    self.logger.warn("Couldn't get playlist artwork:")
+                    self.logger.warn(response)
 
                 for block in response.iter_content(1024):
                     if not block:
@@ -117,8 +118,6 @@ class PlaylistManager:
 
             if not custom_playlists_dict[playlist] == "[example--will not be used]":
                 custom_playlists_dict[playlist] = playlist_object["name"]
-
-        self.logger.info("Read custom playlists")
 
         self.store_custom_playlists(custom_playlists_dict)
 
@@ -201,4 +200,5 @@ class PlaylistManager:
                         relative_path = os.path.relpath(path = hard_path, start = playlist_m3u.parent)
                         append_file.write(str(relative_path) + "\n")
                     except Exception as e:
-                        print(e)
+                        self.logger.error("Exception when writing m3u file:")
+                        self.logger.error(e)
