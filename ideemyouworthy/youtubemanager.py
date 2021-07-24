@@ -10,6 +10,8 @@ from mutagen import File
 
 import youtube_dl
 
+import util
+
 
 class YoutubeManager:
     def __init__(self, logger, spotify_manager, music_directory, youtube_tag_dict):
@@ -48,12 +50,6 @@ class YoutubeManager:
             self.master_track_file.touch()
             self.master_track_file.write_text(json.dumps({}), encoding = "utf-8")
             self.logger.info("Created master track file")
-
-        # self.youtube_tag_cache_file = Path(Path.cwd().parents[0] / "cache" / "youtube_tags.json")
-        # if not self.youtube_tag_cache_file.exists():
-        #     self.youtube_tag_cache_file.touch()
-        #     self.youtube_tag_cache_file.write_text(json.dumps({}), encoding = "utf-8")
-        #     self.logger.info("Created YouTube tag cache file")
 
         self.youtube_dl_manager = youtube_dl.YoutubeDL(ydl_opts)
         self.logger.info("Finished setting up youtube_manager")
@@ -127,11 +123,6 @@ class YoutubeManager:
 
     def add_tags(self):
 
-        def remove(value, deletechars):
-            for c in deletechars:
-                value = value.replace(c, '')
-            return value
-
         for uri in self.youtube_tag_dict:
 
             if "filepath" in self.youtube_tag_dict[uri]:
@@ -166,7 +157,7 @@ class YoutubeManager:
                         continue
                     break
 
-                new_path = Path(file_path.parent / Path(remove(f"{self.youtube_tag_dict[uri]['artist']} - {self.youtube_tag_dict[uri]['name']}.mp3", '\/:*?"<>|')))
+                new_path = Path(file_path.parent / Path(util.clean_path_child(f"{self.youtube_tag_dict[uri]['artist']} - {self.youtube_tag_dict[uri]['name']}.mp3")))
 
                 os.rename(file_path, new_path)
 

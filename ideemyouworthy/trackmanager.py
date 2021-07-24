@@ -84,12 +84,12 @@ class TrackManager:
 
     def clear_duplicate_downloads(self, playlist_changes):
         master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
-        master_track_set = util.dictToSet(master_track_dict)
+        master_track_set = util.dict_to_set(master_track_dict)
 
         tracks_to_download = set()
 
         for playlist in playlist_changes:
-            playlist_changes_set = util.dictToSet(playlist_changes[playlist])
+            playlist_changes_set = util.dict_to_set(playlist_changes[playlist])
 
             differences = playlist_changes_set.difference(master_track_set)  # Checks against already downloaded tracks
 
@@ -162,7 +162,6 @@ class TrackManager:
                                 track.Delete()
                                 extra_count += 1
                         except:
-                            ""
                             self.logger.warn("What just happened? This isn't good.")
             if playlist_edits[playlist]["missing_tracks"]:
                 for missing_track in playlist_edits[playlist]["missing_tracks"]:
@@ -237,8 +236,8 @@ class TrackManager:
                     tags = TinyTag.get(track)
                     missing_tracks[track] = tags.title
 
-            extra_tracks_names = util.dictToSetValues(extra_tracks)
-            missing_tracks_names = util.dictToSetValues(missing_tracks)
+            extra_tracks_names = util.dict_to_set_values(extra_tracks)
+            missing_tracks_names = util.dict_to_set_values(missing_tracks)
 
             playlist_edits[playlist] = collections.OrderedDict()
             playlist_edits[playlist]["extra_tracks"] = extra_tracks

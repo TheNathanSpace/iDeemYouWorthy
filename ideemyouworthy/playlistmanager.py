@@ -8,6 +8,8 @@ from posixpath import basename, dirname
 import requests
 import win32com
 
+import util
+
 
 class PlaylistManager:
 
@@ -91,10 +93,11 @@ class PlaylistManager:
             uri_array = uri_playlist.split(":")
 
             playlist_object = self.spotify_manager.playlist(uri_array[2], fields = "name")
+            playlist_name = util.clean_path_child(playlist_object["name"])
             playlist_cover_url = self.spotify_manager.playlist_cover_image(uri_array[2])[0]["url"]
 
             Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
-            playlist_cover_file = Path(Path.cwd().parents[0] / "playlists" / (playlist_object["name"] + ".jpg"))
+            playlist_cover_file = Path(Path.cwd().parents[0] / "playlists" / (playlist_name + ".jpg"))
             if not playlist_cover_file.exists():
                 playlist_cover_file.touch()
 
@@ -114,10 +117,8 @@ class PlaylistManager:
             del parsed_dict[playlist]
 
             if not custom_playlists_dict[playlist] == "[example--will not be used]":
-                parsed_dict[playlist_object["name"]] = uri_playlist
-
-            if not custom_playlists_dict[playlist] == "[example--will not be used]":
-                custom_playlists_dict[playlist] = playlist_object["name"]
+                parsed_dict[playlist_name] = uri_playlist
+                custom_playlists_dict[playlist] = playlist_name
 
         self.store_custom_playlists(custom_playlists_dict)
 
@@ -187,9 +188,7 @@ class PlaylistManager:
             if not playlist_m3u.exists():
                 playlist_m3u.touch()
 
-            playlist_m3u.write_text("", encoding = "utf-8")
-
-            with playlist_m3u.open("a") as append_file:
+            with playlist_m3u.open("a", encoding = 'utf-8') as append_file:
                 append_file.write("#EXTM3U\n")
                 append_file.write("#EXTIMG: front cover\n")
                 append_file.write(playlist + ".jpg\n")
