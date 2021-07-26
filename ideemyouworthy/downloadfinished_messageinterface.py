@@ -33,7 +33,7 @@ class DownloadFinishedMessageInterface(MessageInterface):
                 # {'uuid': self.queueItem.uuid, 'downloaded': True, 'downloadPath': writepath}
                 for track in self.downloaded_tracks:
                     if self.downloaded_tracks[track] == value["uuid"]:
-                        self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": value["downloadPath"]}
+                        self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": Path(value["downloadPath"]).as_posix()}
                         tags = TinyTag.get(value["downloadPath"])
                         print("[" + str(self.deezer_tracks_to_download - len(self.queue_manager.queue)) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + tags.title)
 

@@ -33,6 +33,38 @@ def clean_path(original_path):
 def clean_path_child(original_path):
     invalid_chars = '\/:*?"<>|'
     for char in invalid_chars:
-        original_path = original_path.replace(char, '')
+        original_path = original_path.replace(char, '_')
 
     return original_path
+
+
+def shorten_android_path(file_path: Path, logger):
+    file_name = file_path.name
+    file_parent = file_path.parent.name
+    windows_root = "This PC/12345678901234567890/Internal shared storage/Music/music/"
+
+    combined_path = windows_root + file_parent + "/" + file_name
+    if len(combined_path) >= 260:
+        return None
+
+    stem = file_path.stem
+
+    announce = True
+    while len(combined_path) >= 260:
+        if announce:
+            logger.info("Renaming file: " + file_parent + "/" + file_name)
+            announce = False
+
+        if len(stem) == 1:
+            # Should probably throw out some error message "bruh this isn't gonna work out waaaay too long"
+            return None
+
+        extension = file_path.suffix
+        stem = stem[:-1]
+
+        file_name = stem + extension
+        combined_path = windows_root + file_parent + "/" + file_name
+
+    new_path = file_path.parent / file_name
+    file_path.rename(new_path)
+    return new_path

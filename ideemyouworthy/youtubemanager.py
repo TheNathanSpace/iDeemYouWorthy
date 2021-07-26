@@ -162,7 +162,7 @@ class YoutubeManager:
                 os.rename(file_path, new_path)
 
                 master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
-                master_track_dict[uri]["download_location"] = str(new_path)
+                master_track_dict[uri]["download_location"] = new_path.as_posix()
                 self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
     def update_objects(self, downloaded_tracks, new_playlists, playlist_changes, use_itunes, track_manager):

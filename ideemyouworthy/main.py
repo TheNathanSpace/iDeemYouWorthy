@@ -1,4 +1,5 @@
 import collections
+import json
 import logging
 import os
 import shutil
@@ -10,6 +11,7 @@ from deemix.app.spotifyhelper import SpotifyHelper
 from deezer import Deezer
 from deemix.app.queuemanager import QueueManager
 
+import util
 from accountmanager import AccountManager
 from playlistmanager import PlaylistManager
 from trackmanager import TrackManager
@@ -33,6 +35,25 @@ from youtubemanager import YoutubeManager
 log_manager = Logger()
 logger = logging.getLogger('iDeemYouWorthy')
 
+use_nathan = input("Use Nathan's patented Secret Settings?™ [y/n] ") == "y"
+if use_nathan:
+    get_user_playlists = False
+    get_custom_playlists = True
+    use_itunes = False
+    fix_itunes = False
+    make_m3u = True
+    verify_path_lengths = True
+else:
+    get_user_playlists = input("Use Spotify account playlists? [y/n] ") == "y"
+    get_custom_playlists = input("Use custom playlists (set in custom_playlists.json)? [y/n] ") == "y"
+    use_itunes = input("Update iTunes? [y/n] ") == "y"
+    if use_itunes:
+        fix_itunes = input("Compare iTunes and cached versions of playlists to re-sync (fixes problems from program crash, also reverts user modifications)? [y/n] ") == "y"
+    else:
+        fix_itunes = False
+    make_m3u = input("Make m3u files (stored in the playlists folder)? [y/n] ") == "y"
+    verify_path_lengths = input("Rename files too long to copy to Android? [y/n] ") == "y"
+
 account_manager = AccountManager(logger)
 account_manager.login_spotify()
 
@@ -42,12 +63,6 @@ youtube_tag_dict = collections.OrderedDict()
 youtube_manager = YoutubeManager(logger, account_manager.spotify_manager, music_directory, youtube_tag_dict)
 
 playlist_manager = PlaylistManager(logger, account_manager)
-
-get_user_playlists = input("Use Spotify account playlists? [y/n] ") == "y"
-get_custom_playlists = input("Use custom playlists (set in custom_playlists.json)? [y/n] ") == "y"
-use_itunes = input("Update iTunes? [y/n] ") == "y"
-fix_itunes = input("Compare iTunes and cached versions of playlists to re-sync (fixes problems from program crash, also reverts user modifications)? [y/n] ") == "y"
-make_m3u = input("Make m3u files (stored in the playlists folder)? [y/n] ") == "y"
 
 new_playlists = None
 if get_user_playlists:
@@ -134,7 +149,7 @@ if len(tracks_to_download) > 0:
 else:
     logger.info("Downloading 0 tracks")
 
-if use_itunes and fix_itunes:
+if fix_itunes:
     track_manager.verify_itunes()
 
 if make_m3u:
@@ -142,3 +157,17 @@ if make_m3u:
 
 if not track_manager.has_finished_queue:
     track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
+
+if verify_path_lengths:
+    logger.info("Verifying file path lengths")
+
+    master_track_file = Path(Path.cwd().parent / "cache" / "track_master_list.json")
+    master_track_dict = json.loads(master_track_file.read_text(encoding = "utf-8"))
+
+    for playlist_uri in master_track_dict:
+        download_location = Path(master_track_dict[playlist_uri]["download_location"])
+        new_path = util.shorten_android_path(download_location, logger)
+
+        if new_path is not None:
+            master_track_dict[playlist_uri]["download_location"] = new_path.as_posix()
+            master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
