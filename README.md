@@ -3,32 +3,25 @@
 The two purposes of this program:
 
  1. Check Spotify for changes to your playlists, downloading the new tracks.
- 2. Add the local versions of your Spotify playlists to iTunes.
- 
-Ultimately, the goal is to have a script that you can have running in the background, keeping your iTunes library up-to-date with Spotify.
+ 2. Generate local versions of your Spotify playlists in iTunes and m3u files.
 
-___
-
-Using **Spotify** for your music is great because you can access it from anywhere, you don't have to worry about the local files, and it's super easy to use.
-
-Storing music locally (like on **iTunes**) is great because there aren't any ongoing costs, it's more versatile, and you aren't reliant on a corporate entity.
-
-So, this aims to combine the best of both worlds.
-
+Ultimately, the goal is to have a script that you can run whenever you want, keeping your local library up-to-date with Spotify.
 
 ## Usage
 
-The program files can be found in the directory `ideemyouworthy`. `main.py` is the main script; run that. It's written for [Python 3](https://www.python.org/downloads/). 
+iDeemYouWorthy is written for [Python 3](https://www.python.org/downloads/). 
 
 ### Installation/Operation
 
-Download the `.zip` file in "Releases". Unzip it. Navigate to `ideemyouworthy` with a terminal and run `main.py` using one of the following commands. It will depend on how your Python environment is set up.
+Download the `.zip` file from [Releases](https://github.com/TheKingElessar/iDeemYouWorthy/releases). Unzip it. In the main directory (the one with the `README.md` file), open a terminal and run this command: `pip install -r requirements.txt`. This should automatically install required dependencies.
+
+Then, open a terminal in the subdirectory `ideemyouworthy`, and start the `main.py` file using one of the following commands. It will depend on how your Python environment is set up.
 
  - `python main.py`
  - `python3 main.py`
  - `main.py`
  
-It should be pretty straightforward from there. Music will be downloaded into the `Music` directory, which will be at the same level as the `ideemyouworthy` folder containing the code. To keep your directory clean, you should keep the entire thing in a parent directory, for example: `D:/Downloaded Music/ideemyouworthy`.
+It should be pretty straightforward from there. Music will be downloaded into the `music` directory, which will be at the same level as the `ideemyouworthy` folder containing the code. To keep your directory clean, you should keep the entire thing in a parent directory, for example: `D:/Downloaded Music/ideemyouworthy`.
 
 You'll need to add your Spotify and deezer account information to the `account_info.json` file. This file will be generated upon the first execution of `main.py`. Once it's there, gather the information following the steps below and paste it in. To verify the `.json` file is still formatted correctly, you can use https://jsonlint.com.
 
@@ -64,26 +57,29 @@ You are not giving me your password! These tokens are used to *avoid* sharing yo
 
 ## FAQ/Misc. Notes
 
-Does this duplicate tracks if you have two playlists with the same track?
- > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically
-
+Does this download duplicate tracks if you have two playlists with the same track?
+ > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically keeps it from downloading a track in the same file location, and iDeemYouWorthy keeps track of downloaded tracks so it can add them to playlists.
 
 I'm getting some stack overflow error!
-
-> This happens when you overload deemix, trying to download too many tracks at once. Currently, the best fix is to only download something like 500 tracks at a time. Use the custom playlist file to control which playlists are downloaded.
-
-I'm having trouble with ________, what's going on?
- > Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any [listed method](README.md#contact-information).
+> This happens when you overload deemix, trying to download too many tracks at once. The best fix is to only download something like 500 tracks at a time. Use the custom playlist file to control which playlists are downloaded.
 
 #### Misc. notes:
 
-> **You cannot track two playlists that have the same name.** I haven't tested it, but it would cause *so many problems*. It would have been *very* annoying for me to have built this program with that in mind. Why would you even have two playlists with the same name in the first place?
+> **You cannot (*should not*) track two playlists that have the same name.** I haven't tested it, but it would cause *so many problems*. It would have been *very* annoying for me to have built this program with that in mind. Why would you even have two playlists with the same name in the first place?
 
 > If you have local files in your Spotify playlist, they'll be printed to `cache/problematic_tracks.txt`. You can figure out what to do with them.
 
-> If a file's path size is over 260, it will be printed to `cache/problematic_tracks.txt`. It cannot be added to iTunes on Windows.
+## Rational
+
+Using **Spotify** for your music is great because you can access it from anywhere, you don't have to worry about local files, and it's super easy to use.
+
+Storing music locally (like on **iTunes**) is great because there aren't any ongoing costs, it's more versatile, and you aren't reliant on a third-party.
+
+So, this aims to combine the best of both worlds.
 
 ## Contact Information
+
+Please let me know if you have trouble with anything! You can open a [GitHub issue](https://github.com/TheKingElessar/iDeemYouWorthy/issues), or contact me through any of these methods.
 
 **Discord:** TheKingElessar#3226
 
