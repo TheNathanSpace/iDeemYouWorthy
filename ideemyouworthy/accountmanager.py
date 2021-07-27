@@ -20,10 +20,14 @@ class AccountManager:
 
             self.logger.info("Created account info file")
 
-            print("User must add login information (to file account_info.json)")
-            input("Press enter once login information has been added")
+            print("You must add your login information to account_info.json!")
+            input("Press enter once login information has been added.")
 
-            self.logger.info("User claims account info has been entered")
+            self.logger.info("User says account info has been entered")
+
+            # self.account_info_dict = json.loads(self.account_info_file.read_text())
+            # self.logger.info("User account info loaded")
+
         else:
             self.account_info_dict = json.loads(self.account_info_file.read_text())
             self.logger.info("User account info loaded")

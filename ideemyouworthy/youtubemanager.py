@@ -45,6 +45,7 @@ class YoutubeManager:
             'quiet': True
         }
 
+        Path.mkdir(Path.cwd().parents[0] / "cache", exist_ok = True)
         self.master_track_file = Path(Path.cwd().parents[0] / "cache" / "track_master_list.json")
         if not self.master_track_file.exists():
             self.master_track_file.touch()
