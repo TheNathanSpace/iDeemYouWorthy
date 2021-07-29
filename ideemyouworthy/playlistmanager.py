@@ -56,7 +56,9 @@ class PlaylistManager:
         new_playlists = collections.OrderedDict()
         while playlists:
             for i, playlist in enumerate(playlists['items']):
-                new_playlists[playlist['name']] = playlist['uri']
+                playlist_name = util.clean_path_child(playlist['name'])
+                new_playlists[playlist_name] = playlist['uri']
+
             if playlists['next']:
                 playlists = self.spotify_manager.next(playlists)
             else:
