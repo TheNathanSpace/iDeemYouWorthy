@@ -42,7 +42,8 @@ You are not giving me your password! These tokens are used to *avoid* sharing yo
  1. Go to https://developer.spotify.com/dashboard/login. Sign into your account.
  2. Select `CREATE AN APP`.
  3. The `App name` and `App description` are irrelevant. Click `CREATE` when you're ready.
- 4. Your `Client ID` will be near the top right, under the app name/description.
+ 4. In the application's menu, click `Edit Settings`. Add the URL `http://example.com` in the `Redirect URIs` field. Save it.
+ 5. Your `Client ID` will be near the top right, under the app name/description.
 
 ##### Finding `SPOTIFY_CLIENT_SECRET`
 
@@ -54,6 +55,18 @@ You are not giving me your password! These tokens are used to *avoid* sharing yo
  1. Follow the instructions [here](https://web.archive.org/web/20200917142534/https://notabug.org/RemixDevs/DeezloaderRemix/wiki/Login+via+userToken). When you are told to enter the ARL into Deezloader, skip that.
  2. You should have your `ARL` copied.
 
+##### Example
+
+In the end, your `account_info.json` file should look something like this:
+
+```
+{
+    "SPOTIFY_USERNAME": "sf08ug804h302gn02200g42",
+    "SPOTIFY_CLIENT_ID": "gi8h492gneisowo3ggs",
+    "SPOTIFY_CLIENT_SECRET": "fgn8932hfiewnoi32g42",
+    "DEEZER_ARL": "g4j02g9jeiodsjgo4ww"
+}
+```
 
 ## FAQ/Misc. Notes
 

@@ -7,13 +7,13 @@ I switched to Android, so the focus is gonna be changing a bit! ¯\\\_(ツ)\_/¯
 ##### Added
 
  - Playlist cover artwork is downloaded from Spotify
+ - Added `requirements.txt`
 
 ##### Changed
 
  - Fixed some problems where it assumed you were using iTunes
  - m3u files now use relative filepaths
  - Fixed some problems with file path lengths
- - Added `requirements.txt`
 
 ### 1.9
 
