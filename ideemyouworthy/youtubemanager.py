@@ -11,10 +11,11 @@ from mutagen import File
 import youtube_dl
 
 import util
+from logmanager import YTLogger, LogManager
 
 
 class YoutubeManager:
-    def __init__(self, logger, spotify_manager, music_directory, youtube_tag_dict):
+    def __init__(self, log_manager: LogManager, logger, spotify_manager, music_directory, youtube_tag_dict):
         self.logger = logger
         self.spotify_manager = spotify_manager
 
@@ -42,7 +43,8 @@ class YoutubeManager:
             'progress_hooks': [self.progress_hook],
             'noplaylist': True,
             'continue_dl': True,
-            'quiet': True
+            'quiet': True,
+            'logger': YTLogger(log_manager.yt_logger)
         }
 
         Path.mkdir(Path.cwd().parents[0] / "cache", exist_ok = True)
@@ -107,7 +109,7 @@ class YoutubeManager:
 
             self.youtube_tag_dict[spotify_uri]["filepath"] = fake_path
 
-            print("[" + str(self.current_download_count) + "/" + str(self.youtube_tracks_to_download) + "] Downloaded " + fake_path)
+            self.logger.info("[" + str(self.current_download_count) + "/" + str(self.youtube_tracks_to_download) + "] Downloaded " + fake_path)
 
             self.downloaded_tracks[spotify_uri] = {"youtube_url": self.current_download_url, "download_location": fake_path}
 

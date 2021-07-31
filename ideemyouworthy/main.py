@@ -16,7 +16,7 @@ from accountmanager import AccountManager
 from playlistmanager import PlaylistManager
 from trackmanager import TrackManager
 from downloadfinished_messageinterface import DownloadFinishedMessageInterface
-from logger import Logger
+from logger import LogManager
 from youtubemanager import YoutubeManager
 
 # START TESTING
@@ -32,7 +32,7 @@ from youtubemanager import YoutubeManager
 
 # END TESTING
 
-log_manager = Logger()
+log_manager = LogManager()
 logger = logging.getLogger('iDeemYouWorthy')
 
 use_nathan = input("Use Nathan's patented Secret Settings?™ [y/n] ") == "y"
@@ -60,7 +60,7 @@ account_manager.login_spotify()
 music_directory = str(Path.cwd().parents[0] / "music")
 
 youtube_tag_dict = collections.OrderedDict()
-youtube_manager = YoutubeManager(logger, account_manager.spotify_manager, music_directory, youtube_tag_dict)
+youtube_manager = YoutubeManager(log_manager, logger, account_manager.spotify_manager, music_directory, youtube_tag_dict)
 
 playlist_manager = PlaylistManager(logger, account_manager)
 

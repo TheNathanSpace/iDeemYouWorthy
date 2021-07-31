@@ -1,4 +1,5 @@
 import json
+from logging import Logger
 from pathlib import Path
 
 from deemix.app.messageinterface import MessageInterface
@@ -6,7 +7,7 @@ from tinytag import TinyTag
 
 
 class DownloadFinishedMessageInterface(MessageInterface):
-    def __init__(self, logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager, use_itunes):
+    def __init__(self, logger: Logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager, use_itunes):
         self.logger = logger
 
         self.downloaded_tracks = downloaded_tracks
@@ -35,7 +36,7 @@ class DownloadFinishedMessageInterface(MessageInterface):
                     if self.downloaded_tracks[track] == value["uuid"]:
                         self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": Path(value["downloadPath"]).as_posix()}
                         tags = TinyTag.get(value["downloadPath"])
-                        print("[" + str(self.deezer_tracks_to_download - len(self.queue_manager.queue)) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + tags.title)
+                        self.logger.info("[" + str(self.deezer_tracks_to_download - len(self.queue_manager.queue)) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + tags.title)
 
                         master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
                         master_track_dict[track] = self.downloaded_tracks[track]
