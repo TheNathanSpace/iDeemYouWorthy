@@ -91,7 +91,17 @@ if len(tracks_to_download) > 0:
     configFolder = getConfigFolder()
     settings = Settings(configFolder).settings
     settings["downloadLocation"] = music_directory
+
+    deemix_spotify_settings_file = configFolder / "authCredentials.json"
+    deemix_spotify_settings = json.loads(deemix_spotify_settings_file.read_text())
+    deemix_spotify_settings["clientId"] = account_manager.account_info_dict["SPOTIFY_CLIENT_ID"]
+    deemix_spotify_settings["clientSecret"] = account_manager.account_info_dict["SPOTIFY_CLIENT_SECRET"]
+
+    with open(deemix_spotify_settings_file, 'w') as f:
+        json.dump(deemix_spotify_settings, f, indent = 2)
+
     spotify_helper = SpotifyHelper(configFolder)
+
     queue_manager = QueueManager(spotify_helper)
 
     deezer_object = Deezer()
