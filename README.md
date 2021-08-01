@@ -68,6 +68,22 @@ In the end, your `account_info.json` file should look something like this:
 }
 ```
 
+#### Updating
+
+When updating, you'll need to replace the following files:
+ 
+ - The `ideemyouworthy` directory
+ - `requirements.txt`
+
+The recommended method is:
+
+1. Download the latest `.zip` release
+2. Unzip it
+3. Copy the above files
+4. Paste them in your main iDeemYouWorthy directory, replacing the current versions
+
+Then, update dependencies by running this command in your main directory: `pip install -r requirements.txt`
+
 ## FAQ/Misc. Notes
 
 Does this download duplicate tracks if you have two playlists with the same track?
