@@ -13,7 +13,7 @@ iDeemYouWorthy is written for [Python 3](https://www.python.org/downloads/).
 
 ### Installation/Operation
 
-Download the `.zip` file from [Releases](https://github.com/TheKingElessar/iDeemYouWorthy/releases). Unzip it. In the main directory (the one with the `README.md` file), open a terminal and run this command: `pip install -r requirements.txt`. This should automatically install required dependencies.
+Download the `.zip` file from [Releases](https://github.com/TheKingElessar/iDeemYouWorthy/releases). Unzip it. In the main directory (the one with the `README.md` file), open a terminal and run `pip install -r requirements.txt` (or `python -m pip install -r requirements.txt` if you get an error message). This should automatically install required dependencies.
 
 Then, open a terminal in the subdirectory `ideemyouworthy`, and start the `main.py` file using one of the following commands. It will depend on how your Python environment is set up.
 
@@ -82,7 +82,7 @@ The recommended method is:
 3. Copy the above files
 4. Paste them in your main iDeemYouWorthy directory, replacing the current versions
 
-Then, update dependencies by running this command in your main directory: `pip install -r requirements.txt`
+Then, update dependencies by running this command in your main directory: `pip install -r requirements.txt` or `python -m pip install -r requirements.txt`.
 
 ## FAQ/Misc. Notes
 

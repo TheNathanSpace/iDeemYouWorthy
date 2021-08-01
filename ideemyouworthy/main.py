@@ -35,7 +35,10 @@ from youtubemanager import YoutubeManager
 
 # END TESTING
 
-print("If you haven't already, be sure to install required dependencies by running the following command (see the README):\n    pip install -r requirements.txt\n")
+print("If you haven't already, be sure to install required dependencies by running the following command (see the README):")
+print("    pip install -r requirements.txt")
+print("(If you have errors, try: python -m pip install -r requirements.txt)")
+print()
 
 log_manager = LogManager()
 logger = logging.getLogger('iDYW')
