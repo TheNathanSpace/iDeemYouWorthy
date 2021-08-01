@@ -62,7 +62,7 @@ else:
         fix_itunes = False
     make_m3u = input("Make m3u files (stored in the playlists folder)? [y/n] ") == "y"
     verify_path_lengths = input("Rename files too long to copy to Android? [y/n] ") == "y"
-    copy_to_android = input("Copy music and playlists to Android Music folder? (Won't waste time overwriting) [y/n] ") == "y"
+    copy_to_android = input("Copy music and playlists to Android Music folder? (Won't waste time overwriting, make sure to enable USB debugging) [y/n] ") == "y"
 
 account_manager = AccountManager(logger)
 account_manager.login_spotify()

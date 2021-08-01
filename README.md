@@ -68,6 +68,15 @@ In the end, your `account_info.json` file should look something like this:
 }
 ```
 
+#### Android File Transfer
+
+As of 1.12, there's an option to automatically copy new files to a connected Android device. By new files, I mean it won't overwrite existing files, saving lots of time.
+
+This feature requires USB debugging to be enabled on the Android device:
+
+> On Android 4.2 and higher, the Developer options screen is hidden by default. To make it visible, go to `Settings > About phone` and tap `Build number` seven times. Return to the previous screen to find Developer options at the bottom.
+> Once Developer options are enabled, you can enable USB Debugging.
+
 #### Updating
 
 When updating, you'll need to replace the following files:
