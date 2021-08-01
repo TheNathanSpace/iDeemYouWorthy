@@ -1,5 +1,13 @@
 # Changelog
 
+### 1.12
+
+I really shouldn't be incrementing the version number for each change, but it's too late to stop now!
+
+##### Added
+
+ - Custom file transfer algorithm optimized for Speed and Efficiency (can now copy files to a connected Android phone without wasting time overwriting ones already there) 
+
 ### 1.11
 
 Dependencies move at the speed of sound, and I figured I'd better get caught up.

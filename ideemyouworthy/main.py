@@ -13,6 +13,7 @@ from deemix.utils.localpaths import getConfigFolder
 import deemix.settings as settings
 from deezer import Deezer
 
+import androidmanager
 import util
 from accountmanager import AccountManager
 from playlistmanager import PlaylistManager
@@ -47,6 +48,7 @@ if use_nathan:
     fix_itunes = False
     make_m3u = True
     verify_path_lengths = True
+    copy_to_android = True
 else:
     get_user_playlists = input("Use Spotify account playlists? [y/n] ") == "y"
     get_custom_playlists = input("Use custom playlists (set in custom_playlists.json)? [y/n] ") == "y"
@@ -57,6 +59,7 @@ else:
         fix_itunes = False
     make_m3u = input("Make m3u files (stored in the playlists folder)? [y/n] ") == "y"
     verify_path_lengths = input("Rename files too long to copy to Android? [y/n] ") == "y"
+    copy_to_android = input("Copy music and playlists to Android Music folder? (Won't waste time overwriting) [y/n] ") == "y"
 
 account_manager = AccountManager(logger)
 account_manager.login_spotify()
@@ -191,5 +194,14 @@ if make_m3u:
 
 if not track_manager.has_finished_queue:
     track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
+
+if copy_to_android:
+    logger.debug("Copying to Android")
+
+    try:
+        androidmanager.transfer_all(logger)
+    except Exception as e:
+        logger.error("Error copying files to Android:")
+        logger.error(e)
 
 logger.info("All done! :) Enjoy the music!")
