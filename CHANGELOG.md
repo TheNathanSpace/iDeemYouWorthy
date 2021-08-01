@@ -1,5 +1,14 @@
 # Changelog
 
+### 1.11
+
+Dependencies move at the speed of sound, and I figured I'd better get caught up.
+
+##### Changed
+
+ - Updated dependencies to more recent versions
+ - Revamped logging and the whole Console Experience
+
 ### 1.10
 
 I switched to Android, so the focus is gonna be changing a bit! ¯\\\_(ツ)\_/¯
