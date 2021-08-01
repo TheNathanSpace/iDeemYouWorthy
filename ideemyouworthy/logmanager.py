@@ -31,7 +31,9 @@ class LogManager:
         self.logger.addHandler(main_handler)
 
         self.logger.setLevel(logging.INFO)
-
+        # todo: this only outputs to file :/
+        # should move most things to debug
+        # then print info for the user to know what's going on
 
 class YTLogger(object):
     def __init__(self, yt_logger: logging.Logger):

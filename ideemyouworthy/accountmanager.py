@@ -1,5 +1,6 @@
 from pathlib import Path
 import spotipy
+from deezer import Deezer
 from spotipy.oauth2 import SpotifyOAuth
 import json
 
@@ -45,7 +46,7 @@ class AccountManager:
         self.spotify_manager = spotipy.Spotify(auth_manager = auth_manager)
         self.logger.info("Authorized with Spotify")
 
-    def login_deezer(self, deezer_object):
+    def login_deezer(self, deezer_object: Deezer):
         self.logger.info("Attempting to authorize with Deezer")
         logged_in = deezer_object.login_via_arl(self.account_info_dict["DEEZER_ARL"])
         self.logger.info("Authorized with Deezer: " + str(logged_in))

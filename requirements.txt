@@ -1,6 +1,5 @@
-# iDeemYouWorthy requirements.txt 
-deemix==2.0.8
-deezer-py==0.0.15
+# iDeemYouWorthy requirements.txt
+deemix:>=3.3.4
 pywin32>=300
 tinytag>=1.5.0
 youtube-dl>=2021.02.04

@@ -5,35 +5,37 @@ import os
 import shutil
 from pathlib import Path
 
+import deemix
+import deezer
+from deemix.downloader import Downloader
+from deemix.plugins import spotify
 from deemix.utils.localpaths import getConfigFolder
-from deemix.app.settings import Settings
-from deemix.app.spotifyhelper import SpotifyHelper
+import deemix.settings as settings
 from deezer import Deezer
-from deemix.app.queuemanager import QueueManager
 
 import util
 from accountmanager import AccountManager
 from playlistmanager import PlaylistManager
 from trackmanager import TrackManager
-from downloadfinished_messageinterface import DownloadFinishedMessageInterface
-from logger import LogManager
+from downloadfinishedlistener import DownloadFinishedListener
+from logmanager import LogManager
 from youtubemanager import YoutubeManager
 
 # START TESTING
 
-# delete_path = Path(Path.cwd().parent / "playlists")
-# if delete_path.exists(): shutil.rmtree(delete_path)
-#
-# delete_path = Path(Path.cwd().parent / "music")
-# if delete_path.exists(): shutil.rmtree(delete_path)
-#
-# delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
-# if delete_path.exists(): os.remove(delete_path)
+delete_path = Path(Path.cwd().parent / "playlists")
+if delete_path.exists(): shutil.rmtree(delete_path)
+
+delete_path = Path(Path.cwd().parent / "music")
+if delete_path.exists(): shutil.rmtree(delete_path)
+
+delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
+if delete_path.exists(): os.remove(delete_path)
 
 # END TESTING
 
 log_manager = LogManager()
-logger = logging.getLogger('iDeemYouWorthy')
+logger = logging.getLogger('iDYW')
 
 use_nathan = input("Use Nathan's patented Secret Settings?™ [y/n] ") == "y"
 if use_nathan:
@@ -89,10 +91,10 @@ tracks_to_download = track_manager.clear_duplicate_downloads(playlist_changes)
 if len(tracks_to_download) > 0:
     logger.info("Downloading " + str(len(tracks_to_download)) + " tracks total")
     configFolder = getConfigFolder()
-    settings = Settings(configFolder).settings
+    settings = settings.load(configFolder)
     settings["downloadLocation"] = music_directory
 
-    deemix_spotify_settings_file = configFolder / "authCredentials.json"
+    deemix_spotify_settings_file = configFolder / "spotify" / "settings.json"
     deemix_spotify_settings = json.loads(deemix_spotify_settings_file.read_text())
     deemix_spotify_settings["clientId"] = account_manager.account_info_dict["SPOTIFY_CLIENT_ID"]
     deemix_spotify_settings["clientSecret"] = account_manager.account_info_dict["SPOTIFY_CLIENT_SECRET"]
@@ -100,16 +102,16 @@ if len(tracks_to_download) > 0:
     with open(deemix_spotify_settings_file, 'w') as f:
         json.dump(deemix_spotify_settings, f, indent = 2)
 
-    spotify_helper = SpotifyHelper(configFolder)
-
-    queue_manager = QueueManager(spotify_helper)
-
-    deezer_object = Deezer()
-
-    account_manager.login_deezer(deezer_object)
+    spotify_helper = spotify.Spotify(configFolder)
+    spotify_helper.checkCredentials()
+    spotify_helper.loadSettings()
 
     downloaded_tracks = collections.OrderedDict()
-    message_interface = DownloadFinishedMessageInterface(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager, use_itunes)
+
+    deezer_object = Deezer()
+    account_manager.login_deezer(deezer_object)
+
+    listener = DownloadFinishedListener(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, use_itunes)
 
     queue_list = list()
     youtube_list = list()
@@ -121,14 +123,16 @@ if len(tracks_to_download) > 0:
             track_manager.store_problematic_track(track)
         else:
             spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
-            deezer_id = spotify_helper.get_trackid_spotify(deezer_object, split_uri[2], False, None)
 
-            if not deezer_id[0] == "0":
-                deezer_uuid = "track_" + str(deezer_id[0]) + "_3"
+            try:
+                download_object = deemix.generateDownloadObject(dz = deezer_object, link = spotify_url, bitrate = deezer.TrackFormats.MP3_320, plugins = {"spotify": spotify_helper}, listener = listener)
+
+                deezer_uuid = "track_" + str(download_object.id) + "_3"
                 downloaded_tracks[track] = deezer_uuid
 
-                queue_list.append("https://www.deezer.com/en/track/" + str(deezer_id[0]))
-            else:
+                queue_list.append(download_object)
+
+            except Exception as e:
                 youtube_tag_dict[track] = track_manager.get_track_data(track)
 
                 search_string = youtube_manager.get_search_string(split_uri[2])
@@ -144,11 +148,15 @@ if len(tracks_to_download) > 0:
     if youtube_num != 0:
         youtube_manager.url_list = youtube_list
         youtube_manager.youtube_tracks_to_download = youtube_num
-        message_interface.youtube_manager = youtube_manager
+        listener.youtube_manager = youtube_manager
 
     if len(queue_list) != 0:
-        message_interface.deezer_tracks_to_download = len(queue_list)
-        queue_manager.addToQueue(deezer_object, queue_list, settings, interface = message_interface)
+        listener.deezer_tracks_to_download = len(queue_list)
+        for download_object in queue_list:
+            downloader = Downloader(dz = deezer_object, downloadObject = download_object, settings = settings, listener = listener)
+            listener.downloader = downloader
+            downloader.start()
+
     else:
         youtube_manager.update_objects(downloaded_tracks, new_playlists, playlist_changes, use_itunes, track_manager)
         youtube_manager.start_download_process()

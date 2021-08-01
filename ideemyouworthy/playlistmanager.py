@@ -189,6 +189,8 @@ class PlaylistManager:
             playlist_m3u = Path(Path.cwd().parents[0] / "playlists" / (playlist + ".m3u"))
             if not playlist_m3u.exists():
                 playlist_m3u.touch()
+            else:
+                playlist_m3u.write_text("")
 
             with playlist_m3u.open("a", encoding = 'utf-8') as append_file:
                 append_file.write("#EXTM3U\n")

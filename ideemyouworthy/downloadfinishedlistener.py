@@ -2,19 +2,19 @@ import json
 from logging import Logger
 from pathlib import Path
 
-from deemix.app.messageinterface import MessageInterface
+from deemix.__main__ import LogListener
 from tinytag import TinyTag
 
 
-class DownloadFinishedMessageInterface(MessageInterface):
-    def __init__(self, logger: Logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, queue_manager, use_itunes):
+class DownloadFinishedListener(LogListener):
+    def __init__(self, logger: Logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, use_itunes):
         self.logger = logger
 
         self.downloaded_tracks = downloaded_tracks
         self.track_manager = track_manager
         self.new_playlists = new_playlists
         self.playlist_changes = playlist_changes
-        self.queue_manager = queue_manager
+        self.downloader = None
 
         self.use_itunes = use_itunes
 
@@ -28,22 +28,26 @@ class DownloadFinishedMessageInterface(MessageInterface):
             self.master_track_file.write_text(json.dumps({}), encoding = "utf-8")
             self.logger.info("Created master track file")
 
+        self.downloaded_number = 0
+
     def send(self, message, value = None):
         if message == "updateQueue" and "downloaded" in value:
             if value["downloaded"]:
                 # {'uuid': self.queueItem.uuid, 'downloaded': True, 'downloadPath': writepath}
                 for track in self.downloaded_tracks:
                     if self.downloaded_tracks[track] == value["uuid"]:
+                        self.downloaded_number += 1
+
                         self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": Path(value["downloadPath"]).as_posix()}
                         tags = TinyTag.get(value["downloadPath"])
-                        self.logger.info("[" + str(self.deezer_tracks_to_download - len(self.queue_manager.queue)) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + tags.title)
+                        self.logger.info("[" + str(self.downloaded_number) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + str(tags.title))
 
                         master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
                         master_track_dict[track] = self.downloaded_tracks[track]
                         self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
                         break
 
-            if len(self.queue_manager.queue) == 0 and not self.track_manager.has_finished_queue:
+            if self.downloaded_number == self.deezer_tracks_to_download and not self.track_manager.has_finished_queue:
                 self.track_manager.has_finished_queue = True
 
                 if self.youtube_manager is None:

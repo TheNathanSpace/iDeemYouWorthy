@@ -6,5 +6,7 @@ playlists/
 logs
 venv/
 
+*.zip
+
 account_info.json
 custom_playlists.json
