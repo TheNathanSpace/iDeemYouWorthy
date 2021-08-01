@@ -1,6 +1,7 @@
 import json
 import collections
 import os
+from logging import Logger
 from pathlib import Path
 from urllib.parse import urlparse
 from posixpath import basename, dirname
@@ -13,7 +14,7 @@ import util
 
 class PlaylistManager:
 
-    def __init__(self, logger, account_manager):
+    def __init__(self, logger: Logger, account_manager):
         self.logger = logger
 
         self.account_manager = account_manager
@@ -24,7 +25,7 @@ class PlaylistManager:
         if not self.master_playlist_file.exists():
             self.master_playlist_file.touch()
             self.master_playlist_file.write_text(json.dumps({}), encoding = "utf-8")
-            self.logger.info("Created master playlist file")
+            self.logger.debug("Created master playlist file")
 
         self.custom_playlist_file = Path(Path.cwd().parents[0] / "custom_playlists.json")
         if not self.custom_playlist_file.exists():
@@ -33,7 +34,7 @@ class PlaylistManager:
             sample_custom_playlists["https://open.spotify.com/playlist/3p22aU2NEvY8KErZAoWSJD"] = "[example--will not be used]"
             sample_custom_playlists["https://open.spotify.com/playlist/2JD9j9iGtPGaupLf0NwZXe"] = "[example--will not be used]"
             self.custom_playlist_file.write_text(json.dumps(sample_custom_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
-            self.logger.info("Created custom playlist file")
+            self.logger.debug("Created custom playlist file")
 
     def uri_to_url(self, uri):
         uri_array = uri.split(":")
@@ -50,7 +51,7 @@ class PlaylistManager:
             return None
 
     def get_new_user_playlists(self):
-        self.logger.info("Starting user playlist retrieval")
+        self.logger.debug("Starting user playlist retrieval")
         spotify_username = self.account_manager.account_info_dict["SPOTIFY_USERNAME"]
         playlists = self.spotify_manager.user_playlists(spotify_username)
         new_playlists = collections.OrderedDict()
@@ -64,7 +65,7 @@ class PlaylistManager:
             else:
                 playlists = None
 
-        self.logger.info("Finished user playlist retrieval")
+        self.logger.info("Retrieved your Spotify playlists")
         return new_playlists
 
     def create_playlist_files(self, new_playlists):
@@ -78,7 +79,7 @@ class PlaylistManager:
                 file_path.write_text(json.dumps({}), encoding = "utf-8")
                 new_file_count += 1
 
-        self.logger.info("Created " + str(new_file_count) + " new playlist files")
+        self.logger.debug("Created " + str(new_file_count) + " new playlist files")
 
     def store_user_playlists(self, new_playlists):
         self.master_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
@@ -107,8 +108,8 @@ class PlaylistManager:
                 response = requests.get(playlist_cover_url, stream = True)
 
                 if not response.ok:
-                    self.logger.warn("Couldn't get playlist artwork:")
-                    self.logger.warn(response)
+                    self.logger.warning("Couldn't get playlist artwork:")
+                    self.logger.warning(response)
 
                 for block in response.iter_content(1024):
                     if not block:
@@ -130,13 +131,13 @@ class PlaylistManager:
         custom_playlists_dict = json.loads(self.custom_playlist_file.read_text())
         custom_playlists_dict[playlist_url] = ""
         self.store_custom_playlists(custom_playlists_dict)
-        self.logger.info("Added custom playlist: " + playlist_url)
+        self.logger.debug("Added custom playlist: " + playlist_url)
 
     def delete_custom_playlist(self, playlist_url):
         custom_playlists_dict = json.loads(self.custom_playlist_file.read_text())
         del custom_playlists_dict[playlist_url]
         self.store_custom_playlists(custom_playlists_dict)
-        self.logger.info("Removed custom playlist: " + playlist_url)
+        self.logger.debug("Removed custom playlist: " + playlist_url)
 
     def delete_stored_playlist(self, playlist):
         custom_playlists_dict = json.loads(self.custom_playlist_file.read_text())

@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from logging import Logger
 from pathlib import Path
 
 import mutagen
@@ -15,7 +16,7 @@ from logmanager import YTLogger, LogManager
 
 
 class YoutubeManager:
-    def __init__(self, log_manager: LogManager, logger, spotify_manager, music_directory, youtube_tag_dict):
+    def __init__(self, log_manager: LogManager, logger: Logger, spotify_manager, music_directory, youtube_tag_dict):
         self.logger = logger
         self.spotify_manager = spotify_manager
 
@@ -52,10 +53,9 @@ class YoutubeManager:
         if not self.master_track_file.exists():
             self.master_track_file.touch()
             self.master_track_file.write_text(json.dumps({}), encoding = "utf-8")
-            self.logger.info("Created master track file")
+            self.logger.debug("Created master track file")
 
         self.youtube_dl_manager = youtube_dl.YoutubeDL(ydl_opts)
-        self.logger.info("Finished setting up youtube_manager")
 
     def get_search_string(self, spotify_id):
         track_item = self.spotify_manager.track(spotify_id)
@@ -80,7 +80,8 @@ class YoutubeManager:
         return first_result
 
     def start_download_process(self):
-        self.logger.info("Starting YouTube downloads")
+        self.logger.debug("Starting YouTube downloads")
+        self.logger.info("---  YouTube downloads:  ---")
 
         self.currently_downloading = True
         self.current_download_count += 1
@@ -121,7 +122,7 @@ class YoutubeManager:
                 self.continue_download_process()
             else:
                 self.currently_downloading = False
-                self.logger.info("Finished YouTube downloads")
+                self.logger.debug("Finished YouTube downloads")
                 self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
 
     def add_tags(self):

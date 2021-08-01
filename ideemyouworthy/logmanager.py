@@ -10,30 +10,35 @@ class LogManager:
         self.log_file = Path(Path.cwd().parents[0] / "logs" / file_string)
         self.log_file.touch()
 
-        default_logger = logging.getLogger()
-        default_logger.setLevel(logging.WARNING)
-
         self.deemix_logger = logging.getLogger('deemix')
-        self.deemix_logger.setLevel(logging.WARNING)
+        self.deemix_logger.setLevel(logging.INFO)
 
         self.yt_logger = logging.getLogger('youtube-dl')
-        self.yt_logger.setLevel(logging.WARNING)
+        self.yt_logger.setLevel(logging.INFO)
 
-        self.logger = logging.getLogger('iDYW')
-        main_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
         datefmt = "%Y-%m-%d %H:%M:%S"
         formatter = logging.Formatter(fmt = "[%(asctime)s.%(msecs)03d][%(name)s:%(levelname)s]: %(message)s", datefmt = datefmt)
+
+        aux_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
+        aux_handler.setFormatter(formatter)
+        aux_handler.setLevel(logging.INFO)
+
+        self.logger = logging.getLogger('iDYW')
+        self.logger.setLevel(logging.DEBUG)
+
+        main_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
         main_handler.setFormatter(formatter)
-        main_handler.setLevel(logging.INFO)
+        main_handler.setLevel(logging.DEBUG)
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
+        stream_handler.setFormatter(formatter)
 
         self.deemix_logger.addHandler(main_handler)
         self.yt_logger.addHandler(main_handler)
         self.logger.addHandler(main_handler)
+        self.logger.addHandler(stream_handler)
 
-        self.logger.setLevel(logging.INFO)
-        # todo: this only outputs to file :/
-        # should move most things to debug
-        # then print info for the user to know what's going on
 
 class YTLogger(object):
     def __init__(self, yt_logger: logging.Logger):

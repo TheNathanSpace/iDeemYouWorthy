@@ -1,4 +1,5 @@
 import json
+from logging import Logger
 from pathlib import Path
 import win32com.client
 import util
@@ -8,7 +9,7 @@ from tinytag import TinyTag
 
 class TrackManager:
 
-    def __init__(self, logger, account_manager):
+    def __init__(self, logger: Logger, account_manager):
         self.logger = logger
         self.account_manager = account_manager
         self.spotify_manager = account_manager.spotify_manager
@@ -17,12 +18,12 @@ class TrackManager:
         if not self.master_track_file.exists():
             self.master_track_file.touch()
             self.master_track_file.write_text(json.dumps({}), encoding = "utf-8")
-            self.logger.info("Created master track file")
+            self.logger.debug("Created master track file")
 
         self.problematic_tracks_file = Path(Path.cwd().parents[0] / "cache" / "problematic_tracks.txt")
         if not self.problematic_tracks_file.exists():
             self.problematic_tracks_file.touch()
-            self.logger.info("Created skipped local tracks file")
+            self.logger.debug("Created problematic tracks file")
 
         self.has_finished_queue = False
 
@@ -72,7 +73,7 @@ class TrackManager:
                 playlist_differences.pop(track, None)
 
             playlist_changes[playlist] = playlist_differences
-            self.logger.info(playlist + ": Found " + str(len(playlist_differences)) + " new tracks")
+            self.logger.info("Found " + str(len(playlist_differences)) + " new tracks in: " + playlist)
 
         return playlist_changes
 
@@ -95,12 +96,12 @@ class TrackManager:
 
             tracks_to_download = tracks_to_download.union(differences)  # Checks against other lists so a new one isn't downloaded twice
 
-        self.logger.info("Cleared unnecessary downloads")
+        self.logger.debug("Cleared unnecessary downloads")
         return tracks_to_download
 
     def finished_queue(self, downloaded_tracks, new_playlists, playlist_changes, use_itunes):
         self.has_finished_queue = True
-        self.logger.info("deezer and YouTube queues finished downloading")
+        self.logger.info("All downloads complete!")
 
         old_master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
         # for track in downloaded_tracks:
@@ -112,9 +113,9 @@ class TrackManager:
 
         itunes_playlists_dict = {}
         if use_itunes:
-            self.logger.info("Using iTunes")
+            self.logger.debug("Using iTunes")
             itunes = win32com.client.Dispatch("iTunes.Application")
-            self.logger.info("iTunes opened")
+            self.logger.debug("iTunes opened")
             itunes_sources = itunes.Sources
             itunes_playlists = None
             for source in itunes_sources:
@@ -145,10 +146,10 @@ class TrackManager:
         if use_itunes:
             self.logger.info("Finished updating iTunes")
         else:
-            self.logger.info("Not using iTunes")
+            self.logger.debug("Not using iTunes")
 
     def fix_itunes(self, itunes_playlists_dict, playlist_edits):
-        self.logger.info("Starting to fix iTunes")
+        self.logger.debug("Starting to fix iTunes")
         for playlist in playlist_edits:
             extra_count = 0
             missing_count = 0
@@ -171,19 +172,16 @@ class TrackManager:
                         missing_count += 1
 
                     except:
-                        self.logger.warn(missing_track + " could not be added to iTunes. The max file path length on Windows is 260; the length of this file path is " + str(len(missing_track)))
+                        self.logger.warning(missing_track + " could not be added to iTunes. The max file path length on Windows is 260; the length of this file path is " + str(len(missing_track)))
                         file_path_length = str(len(missing_track))
                         self.logger.info(missing_track + " could not be added to iTunes. File path length: " + file_path_length)
                         self.store_problematic_track("(" + file_path_length + ") " + missing_track)
 
-            if extra_count > 0:
-                self.logger.info(playlist + ": Removed " + str(extra_count) + " extra tracks")
-            if missing_count > 0:
-                self.logger.info(playlist + ": Added " + str(missing_count) + " missing tracks")
+            self.logger.info(f"Added {str(missing_count)} and removed {str(extra_count)} tracks from: " + playlist)
 
     # This verifies that the iTunes and cached playlists agree
     def verify_itunes(self):
-        self.logger.info("Starting to verify iTunes is up-to-date")
+        self.logger.debug("Starting to verify iTunes is up-to-date")
         itunes = win32com.client.Dispatch("iTunes.Application")
 
         itunes_sources = itunes.Sources

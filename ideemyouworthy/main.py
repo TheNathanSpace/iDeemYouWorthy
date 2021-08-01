@@ -23,21 +23,21 @@ from youtubemanager import YoutubeManager
 
 # START TESTING
 
-delete_path = Path(Path.cwd().parent / "playlists")
-if delete_path.exists(): shutil.rmtree(delete_path)
-
-delete_path = Path(Path.cwd().parent / "music")
-if delete_path.exists(): shutil.rmtree(delete_path)
-
-delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
-if delete_path.exists(): os.remove(delete_path)
+# delete_path = Path(Path.cwd().parent / "playlists")
+# if delete_path.exists(): shutil.rmtree(delete_path)
+#
+# delete_path = Path(Path.cwd().parent / "music")
+# if delete_path.exists(): shutil.rmtree(delete_path)
+#
+# delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
+# if delete_path.exists(): os.remove(delete_path)
 
 # END TESTING
 
 log_manager = LogManager()
 logger = logging.getLogger('iDYW')
 
-use_nathan = input("Use Nathan's patented Secret Settings?™ [y/n] ") == "y"
+use_nathan = input("Use Nathan's patented Secret Settings?™ (Optimized for Android) [y/n] ") == "y"
 if use_nathan:
     get_user_playlists = False
     get_custom_playlists = True
@@ -58,6 +58,9 @@ else:
 
 account_manager = AccountManager(logger)
 account_manager.login_spotify()
+
+deezer_object = Deezer()
+account_manager.login_deezer(deezer_object)
 
 music_directory = str(Path.cwd().parents[0] / "music")
 
@@ -89,7 +92,7 @@ playlist_changes = track_manager.find_new_tracks(new_playlists)
 tracks_to_download = track_manager.clear_duplicate_downloads(playlist_changes)
 
 if len(tracks_to_download) > 0:
-    logger.info("Downloading " + str(len(tracks_to_download)) + " tracks total")
+    logger.debug("Downloading " + str(len(tracks_to_download)) + " tracks total")
     configFolder = getConfigFolder()
     settings = settings.load(configFolder)
     settings["downloadLocation"] = music_directory
@@ -107,9 +110,6 @@ if len(tracks_to_download) > 0:
     spotify_helper.loadSettings()
 
     downloaded_tracks = collections.OrderedDict()
-
-    deezer_object = Deezer()
-    account_manager.login_deezer(deezer_object)
 
     listener = DownloadFinishedListener(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, use_itunes)
 
@@ -167,17 +167,8 @@ if len(tracks_to_download) > 0:
 else:
     logger.info("Downloading 0 tracks")
 
-if fix_itunes:
-    track_manager.verify_itunes()
-
-if make_m3u:
-    playlist_manager.create_m3u()
-
-if not track_manager.has_finished_queue:
-    track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
-
 if verify_path_lengths:
-    logger.info("Verifying file path lengths")
+    logger.debug("Verifying file path lengths")
 
     master_track_file = Path(Path.cwd().parent / "cache" / "track_master_list.json")
     master_track_dict = json.loads(master_track_file.read_text(encoding = "utf-8"))
@@ -189,3 +180,14 @@ if verify_path_lengths:
         if new_path is not None:
             master_track_dict[playlist_uri]["download_location"] = new_path.as_posix()
             master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
+
+if fix_itunes:
+    track_manager.verify_itunes()
+
+if make_m3u:
+    playlist_manager.create_m3u()
+
+if not track_manager.has_finished_queue:
+    track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
+
+logger.info("All done! :) Enjoy the music!")

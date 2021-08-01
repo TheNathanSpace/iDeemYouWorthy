@@ -26,8 +26,9 @@ class DownloadFinishedListener(LogListener):
         if not self.master_track_file.exists():
             self.master_track_file.touch()
             self.master_track_file.write_text(json.dumps({}), encoding = "utf-8")
-            self.logger.info("Created master track file")
+            self.logger.debug("Created master track file")
 
+        self.first_complete = False
         self.downloaded_number = 0
 
     def send(self, message, value = None):
@@ -36,22 +37,26 @@ class DownloadFinishedListener(LogListener):
                 # {'uuid': self.queueItem.uuid, 'downloaded': True, 'downloadPath': writepath}
                 for track in self.downloaded_tracks:
                     if self.downloaded_tracks[track] == value["uuid"]:
-                        self.downloaded_number += 1
+                        if not self.first_complete:
+                            self.logger.info("---  deezer downloads:  ---")
+                            self.first_complete = True
 
-                        self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": Path(value["downloadPath"]).as_posix()}
-                        tags = TinyTag.get(value["downloadPath"])
-                        self.logger.info("[" + str(self.downloaded_number) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + str(tags.title))
+                    self.downloaded_number += 1
 
-                        master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
-                        master_track_dict[track] = self.downloaded_tracks[track]
-                        self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
-                        break
+                    self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": Path(value["downloadPath"]).as_posix()}
+                    tags = TinyTag.get(value["downloadPath"])
+                    self.logger.info("[" + str(self.downloaded_number) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + str(tags.title))
 
-            if self.downloaded_number == self.deezer_tracks_to_download and not self.track_manager.has_finished_queue:
-                self.track_manager.has_finished_queue = True
+                    master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
+                    master_track_dict[track] = self.downloaded_tracks[track]
+                    self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
+                    break
 
-                if self.youtube_manager is None:
-                    self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
-                else:
-                    self.youtube_manager.update_objects(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes, self.track_manager)
-                    self.youtube_manager.start_download_process()
+        if self.downloaded_number == self.deezer_tracks_to_download and not self.track_manager.has_finished_queue:
+            self.track_manager.has_finished_queue = True
+
+            if self.youtube_manager is None:
+                self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
+            else:
+                self.youtube_manager.update_objects(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes, self.track_manager)
+                self.youtube_manager.start_download_process()
