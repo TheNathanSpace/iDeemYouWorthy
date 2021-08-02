@@ -41,16 +41,16 @@ class DownloadFinishedListener(LogListener):
                             self.logger.info("---  deezer downloads:  ---")
                             self.first_complete = True
 
-                    self.downloaded_number += 1
+                        self.downloaded_number += 1
 
-                    self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": Path(value["downloadPath"]).as_posix()}
-                    tags = TinyTag.get(value["downloadPath"])
-                    self.logger.info("[" + str(self.downloaded_number) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + str(tags.title))
+                        self.downloaded_tracks[track] = {"deezer_uuid": value["uuid"], "download_location": Path(value["downloadPath"]).as_posix()}
+                        tags = TinyTag.get(value["downloadPath"])
+                        self.logger.info("[" + str(self.downloaded_number) + "/" + str(self.deezer_tracks_to_download) + "] Downloaded " + str(tags.title))
 
-                    master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
-                    master_track_dict[track] = self.downloaded_tracks[track]
-                    self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
-                    break
+                        master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
+                        master_track_dict[track] = self.downloaded_tracks[track]
+                        self.master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
+                        break
 
         if self.downloaded_number == self.deezer_tracks_to_download and not self.track_manager.has_finished_queue:
             self.track_manager.has_finished_queue = True
