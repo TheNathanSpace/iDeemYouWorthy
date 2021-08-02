@@ -124,6 +124,7 @@ if len(tracks_to_download) > 0:
     queue_list = list()
     youtube_list = list()
 
+    logger.info("Converting Spotify tracks, this might take a while...")
     for track in tracks_to_download:
         split_uri = track.split(":")
 
@@ -175,6 +176,7 @@ if len(tracks_to_download) > 0:
 else:
     logger.info("Downloading 0 tracks")
 
+logger.info("Fixing track file paths and updating playlists, this might take a while...")
 if verify_path_lengths:
     logger.debug("Verifying file path lengths")
 
@@ -199,7 +201,7 @@ if not track_manager.has_finished_queue:
     track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
 
 if copy_to_android:
-    logger.debug("Copying to Android")
+    logger.info("Copying music to Android, this might take a while...")
 
     try:
         androidmanager.transfer_all(logger)

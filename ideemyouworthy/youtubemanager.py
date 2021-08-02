@@ -88,13 +88,35 @@ class YoutubeManager:
 
         with self.youtube_dl_manager as youtube_dl_manager:
             self.current_download_url = self.url_list.pop()
-            youtube_dl_manager.download([self.base_url + self.current_download_url])
+            try:
+                youtube_dl_manager.download([self.base_url + self.current_download_url])
+            except Exception as e:
+                self.logger.error("Couldn't download track from YouTube:")
+                self.logger.error(e)
+
+                if len(self.url_list) != 0:
+                    self.continue_download_process()
+                else:
+                    self.currently_downloading = False
+                    self.logger.debug("Finished YouTube downloads")
+                    self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
 
     def continue_download_process(self):
         self.current_download_count += 1
         with self.youtube_dl_manager as youtube_dl_manager:
             self.current_download_url = self.url_list.pop()
-            youtube_dl_manager.download([self.base_url + self.current_download_url])
+            try:
+                youtube_dl_manager.download([self.base_url + self.current_download_url])
+            except Exception as e:
+                self.logger.error("Couldn't download track from YouTube:")
+                self.logger.error(e)
+
+                if len(self.url_list) != 0:
+                    self.continue_download_process()
+                else:
+                    self.currently_downloading = False
+                    self.logger.debug("Finished YouTube downloads")
+                    self.track_manager.finished_queue(self.downloaded_tracks, self.new_playlists, self.playlist_changes, self.use_itunes)
 
     def progress_hook(self, response):
         if response["status"] == "finished":
