@@ -45,9 +45,7 @@ def transfer_all(logger: Logger):
     for file in all_playlists:
         file_name = file.name
         android_path = f"/storage/emulated/0/Music/playlists/{file_name}"
-        exists = "No such file or directory" not in device.shell(f"ls \"{android_path}\"")
-        if not exists:
-            device.push(file, android_path)
-            transferred_count += 1
+        device.push(file, android_path)
+        transferred_count += 1
 
     logger.info(f"Copied {transferred_count} files to your Android!")
