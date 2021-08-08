@@ -16,12 +16,10 @@ class LogManager:
         self.yt_logger = logging.getLogger('youtube-dl')
         self.yt_logger.setLevel(logging.INFO)
 
+        self.system_logger = logging.getLogger()
+
         datefmt = "%Y-%m-%d %H:%M:%S"
         formatter = logging.Formatter(fmt = "[%(asctime)s.%(msecs)03d][%(name)s:%(levelname)s]: %(message)s", datefmt = datefmt)
-
-        aux_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
-        aux_handler.setFormatter(formatter)
-        aux_handler.setLevel(logging.INFO)
 
         self.logger = logging.getLogger('iDYW')
         self.logger.setLevel(logging.DEBUG)
@@ -34,6 +32,11 @@ class LogManager:
         stream_handler.setLevel(logging.INFO)
         stream_handler.setFormatter(formatter)
 
+        system_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
+        system_handler.setFormatter(formatter)
+        system_handler.setLevel(logging.WARNING)
+
+        self.system_logger.addHandler(main_handler)
         self.deemix_logger.addHandler(main_handler)
         self.yt_logger.addHandler(main_handler)
         self.logger.addHandler(main_handler)

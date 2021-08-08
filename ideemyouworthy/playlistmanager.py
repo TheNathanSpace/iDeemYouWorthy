@@ -50,15 +50,21 @@ class PlaylistManager:
         else:
             return None
 
+    def store_user_playlists(self, new_playlists):
+        self.master_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
+
+    def store_custom_playlists(self, new_playlists):
+        self.custom_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
+
     def get_new_user_playlists(self):
         self.logger.debug("Starting user playlist retrieval")
         spotify_username = self.account_manager.account_info_dict["SPOTIFY_USERNAME"]
         playlists = self.spotify_manager.user_playlists(spotify_username)
-        new_playlists = collections.OrderedDict()
+        user_playlists = collections.OrderedDict()
         while playlists:
             for i, playlist in enumerate(playlists['items']):
                 playlist_name = util.clean_path_child(playlist['name'])
-                new_playlists[playlist_name] = playlist['uri']
+                user_playlists[playlist_name] = playlist['uri']
 
             if playlists['next']:
                 playlists = self.spotify_manager.next(playlists)
@@ -66,26 +72,10 @@ class PlaylistManager:
                 playlists = None
 
         self.logger.info("Retrieved your Spotify playlists")
-        return new_playlists
 
-    def create_playlist_files(self, new_playlists):
-        Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
+        self.get_playlist_artwork(user_playlists)
 
-        new_file_count = 0
-        for playlist in new_playlists:
-            file_path = Path.cwd().parents[0] / "playlists" / (playlist + ".json")
-            if not file_path.exists():
-                file_path.touch()
-                file_path.write_text(json.dumps({}), encoding = "utf-8")
-                new_file_count += 1
-
-        self.logger.debug("Created " + str(new_file_count) + " new playlist files")
-
-    def store_user_playlists(self, new_playlists):
-        self.master_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
-
-    def store_custom_playlists(self, new_playlists):
-        self.custom_playlist_file.write_text(json.dumps(new_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
+        return user_playlists
 
     def read_custom_playlists(self):
         custom_playlists_dict = json.loads(self.custom_playlist_file.read_text())
@@ -97,9 +87,30 @@ class PlaylistManager:
 
             playlist_object = self.spotify_manager.playlist(uri_array[2], fields = "name")
             playlist_name = util.clean_path_child(playlist_object["name"])
-            playlist_cover_url = self.spotify_manager.playlist_cover_image(uri_array[2])[0]["url"]
 
             Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
+            del parsed_dict[playlist]
+
+            if not custom_playlists_dict[playlist] == "[example--will not be used]":
+                parsed_dict[playlist_name] = uri_playlist
+                custom_playlists_dict[playlist] = playlist_name
+
+        self.get_playlist_artwork(custom_playlists_dict)
+
+        self.store_custom_playlists(custom_playlists_dict)
+
+        return parsed_dict
+
+    def get_playlist_artwork(self, playlists_dict):
+        for playlist in playlists_dict:
+            uri_playlist = self.url_to_uri(playlist)
+            uri_array = uri_playlist.split(":")
+
+            playlist_object = self.spotify_manager.playlist(uri_array[2], fields = "name")
+            playlist_name = util.clean_path_child(playlist_object["name"])
+
+            playlist_cover_url = self.spotify_manager.playlist_cover_image(uri_array[2])[0]["url"]
+
             playlist_cover_file = Path(Path.cwd().parents[0] / "playlists" / (playlist_name + ".jpg"))
             if not playlist_cover_file.exists():
                 playlist_cover_file.touch()
@@ -117,15 +128,18 @@ class PlaylistManager:
 
                     handle.write(block)
 
-            del parsed_dict[playlist]
+    def create_playlist_files(self, new_playlists):
+        Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
 
-            if not custom_playlists_dict[playlist] == "[example--will not be used]":
-                parsed_dict[playlist_name] = uri_playlist
-                custom_playlists_dict[playlist] = playlist_name
+        new_file_count = 0
+        for playlist in new_playlists:
+            file_path = Path.cwd().parents[0] / "playlists" / (playlist + ".json")
+            if not file_path.exists():
+                file_path.touch()
+                file_path.write_text(json.dumps({}), encoding = "utf-8")
+                new_file_count += 1
 
-        self.store_custom_playlists(custom_playlists_dict)
-
-        return parsed_dict
+        self.logger.debug("Created " + str(new_file_count) + " new playlist files")
 
     def add_custom_playlist(self, playlist_url):
         custom_playlists_dict = json.loads(self.custom_playlist_file.read_text())

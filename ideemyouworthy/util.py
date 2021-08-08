@@ -1,3 +1,4 @@
+from logging import Logger
 from pathlib import Path
 
 
@@ -38,13 +39,13 @@ def clean_path_child(original_path):
     return original_path
 
 
-def shorten_android_path(file_path: Path, logger):
+def shorten_android_path(file_path: Path, logger: Logger):
     file_name = file_path.name
     file_parent = file_path.parent.name
     windows_root = "This PC/12345678901234567890/Internal shared storage/Music/music/"
 
     combined_path = windows_root + file_parent + "/" + file_name
-    if len(combined_path) >= 260:
+    if not len(combined_path) >= 260:
         return None
 
     stem = file_path.stem
@@ -66,5 +67,11 @@ def shorten_android_path(file_path: Path, logger):
         combined_path = windows_root + file_parent + "/" + file_name
 
     new_path = file_path.parent / file_name
-    file_path.rename(new_path)
+    try:
+        file_path.rename(new_path)
+    except Exception as e:
+        logger.error("Couldn't rename file!")
+        logger.error(e)
+        return None
+
     return new_path
