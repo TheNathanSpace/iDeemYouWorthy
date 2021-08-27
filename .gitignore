@@ -3,9 +3,9 @@ music/
 cache/
 playlists/
 .idea/
-logs
+logs/
 venv/
-
+output/
 *.zip
 
 account_info.json

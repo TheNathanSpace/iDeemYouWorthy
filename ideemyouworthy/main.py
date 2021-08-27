@@ -202,6 +202,7 @@ if not track_manager.has_finished_queue:
 
 if copy_to_android:
     logger.info("Copying music to Android, this might take a while...")
+    os.system("adb start-server")
 
     try:
         androidmanager.transfer_all(logger)

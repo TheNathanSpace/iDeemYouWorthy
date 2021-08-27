@@ -77,9 +77,11 @@ This feature requires USB debugging to be enabled on the Android device:
 > On Android 4.2 and higher, the Developer options screen is hidden by default. To make it visible, go to `Settings > About phone` and tap `Build number` seven times. Return to the previous screen to find Developer options at the bottom.
 > Once Developer options are enabled, you can enable USB Debugging.
 
-You'll also need [Android Platform Tools](https://developer.android.com/studio/releases/platform-tools) for the `adb` tool. In a terminal wherever you install it, run the command `adb start-server`. You'll need to redo this if you restart your computer.
+You'll also need [Android Platform Tools](https://developer.android.com/studio/releases/platform-tools) for the `adb` tool. When you unzip the file, move the directory containing all the files to wherever you want it installed. Then you can add that directory to your `PATH` environmental variable [like so](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/).
 
-When you first connect your phone, it might ask you if you want to allow some connection; allow it.
+Now, in a terminal, run the command `adb start-server`. When you first connect your phone, it might ask you if you want to allow some connection; allow it.
+
+Everything should work now!
 
 #### Updating
 
