@@ -201,13 +201,19 @@ if not track_manager.has_finished_queue:
     track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
 
 if copy_to_android:
-    logger.info("Copying music to Android, this might take a while...")
-    os.system("adb start-server")
+    while True:
+        logger.info("Copying music to Android, this might take a while...")
+        os.system("adb start-server")
 
-    try:
-        androidmanager.transfer_all(logger)
-    except Exception as e:
-        logger.error("Error copying files to Android:")
-        logger.error(e)
+        try:
+            androidmanager.transfer_all(logger)
+            break
+        except Exception as e:
+            logger.error("Error copying files to Android:")
+            logger.error(e)
+            logger.info("The adb server might not be running, or check for a confirmation dialogue on your device!")
+            retry = input("Retry file transfer? [y/n] ") == "y"
+            if not retry:
+                break
 
 logger.info("All done! :) Enjoy the music!")

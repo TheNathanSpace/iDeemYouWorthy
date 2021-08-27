@@ -36,7 +36,7 @@ class LogManager:
         system_handler.setFormatter(formatter)
         system_handler.setLevel(logging.WARNING)
 
-        self.system_logger.addHandler(main_handler)
+        self.system_logger.addHandler(system_handler)
         self.deemix_logger.addHandler(main_handler)
         self.yt_logger.addHandler(main_handler)
         self.logger.addHandler(main_handler)
