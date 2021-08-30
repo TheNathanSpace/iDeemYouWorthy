@@ -8,6 +8,7 @@ from posixpath import basename, dirname
 
 import requests
 import win32com
+from spotipy import SpotifyException
 
 import util
 
@@ -78,28 +79,34 @@ class PlaylistManager:
         return user_playlists
 
     def read_custom_playlists(self):
-        custom_playlists_dict = json.loads(self.custom_playlist_file.read_text())
-        parsed_dict = custom_playlists_dict.copy()
+        original_custom_playlists = json.loads(self.custom_playlist_file.read_text())
+        cleaned_custom_playlists = original_custom_playlists.copy()
 
-        for playlist in custom_playlists_dict:
+        for playlist in original_custom_playlists:
             uri_playlist = self.url_to_uri(playlist)
             uri_array = uri_playlist.split(":")
 
-            playlist_object = self.spotify_manager.playlist(uri_array[2], fields = "name")
-            playlist_name = util.clean_path_child(playlist_object["name"])
+            try:
+                playlist_object = self.spotify_manager.playlist(uri_array[2], fields = "name")
 
-            Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
-            del parsed_dict[playlist]
+                playlist_name = util.clean_path_child(playlist_object["name"])
 
-            if not custom_playlists_dict[playlist] == "[example--will not be used]":
-                parsed_dict[playlist_name] = uri_playlist
-                custom_playlists_dict[playlist] = playlist_name
+                Path.mkdir(Path.cwd().parents[0] / "playlists", exist_ok = True)
+                del cleaned_custom_playlists[playlist]
 
-        self.get_playlist_artwork(custom_playlists_dict)
+                if not original_custom_playlists[playlist] == "[example--will not be used]":
+                    cleaned_custom_playlists[playlist_name] = uri_playlist
+                    original_custom_playlists[playlist] = playlist_name
 
-        self.store_custom_playlists(custom_playlists_dict)
+            except SpotifyException as e:
+                self.logger.error(f"Playlist {playlist} is not a valid Spotify playlist! (will ignore)")
+                del cleaned_custom_playlists[playlist]
 
-        return parsed_dict
+        self.get_playlist_artwork(cleaned_custom_playlists)
+
+        self.store_custom_playlists(original_custom_playlists)
+
+        return cleaned_custom_playlists
 
     def get_playlist_artwork(self, playlists_dict):
         for playlist in playlists_dict:

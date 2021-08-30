@@ -91,6 +91,10 @@ if new_playlists and new_custom_playlists:
 elif new_custom_playlists and not new_playlists:
     new_playlists = new_custom_playlists
 
+if new_playlists is None:
+    logger.info("You aren't tracking any playlists! I'm all done! :)")
+    quit()
+
 playlist_manager.create_playlist_files(new_playlists)
 
 track_manager = TrackManager(logger, account_manager)
