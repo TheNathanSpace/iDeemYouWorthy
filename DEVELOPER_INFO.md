@@ -8,21 +8,17 @@ Here's an overview of how it works:
 
 1. Authorizes with your Spotify account.
 2. Retrieves playlist data from Spotify.
-3. Retrieves playlist data from iTunes.
-4. Checks for new Spotify playlists (compared to the last time the program ran).
-5. Checks for changes in the playlist contents (compared to the last time the program ran).
-6. Checks the new tracks against previously downloaded tracks (from the last time the program ran).
+3. Checks for changes:
+     - New playlists
+     - New tracks in playlists
+4. Checks against previously downloaded tracks to see what needs to be downloaded.
 
 So now the program knows the tracks you've added to your Spotify playlists, and it can start downloading the changes.
 
-7. Authorizes with your deezer account.
-8. Downloads the new tracks using deemix.
-9. Downloads the rest of the new tracks using youtube_dl.
-10. Adds the tracks to iTunes in the appropriate playlists.
-11. Stores the latest versions of the following for the next time the program is run:
-      - Playlists
-	  - Playlist contents
-	  - Downloaded tracks
+5. Authorizes with your deezer account.
+6. Downloads the new tracks using deemix.
+7. Downloads the rest of the new tracks using youtube_dl.
+8. Stores the tracks in playlist format: JSON, m3u, and iTunes, as appropriate.
 
 ## Libraries
 
