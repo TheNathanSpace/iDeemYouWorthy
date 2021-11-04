@@ -1,11 +1,6 @@
 # iDeemYouWorthy
 
-The two purposes of this program:
-
- 1. Check Spotify for changes to your playlists, downloading the new tracks.
- 2. Generate local versions of your Spotify playlists in iTunes and m3u files.
-
-Ultimately, the goal is to have a script that you can run whenever you want, keeping your local library up-to-date with Spotify.
+This program automatically pulls playlists from Spotify, downloads the music, and creates local versions of the playlists. Primarily, it's to be used with iTunes or Android to transfer the playlists to a phone, keeping your local libraries up-to-date with Spotify.
 
 ## Usage
 
@@ -13,60 +8,31 @@ iDeemYouWorthy is written for [Python 3](https://www.python.org/downloads/).
 
 ### Installation/Operation
 
-Download the `.zip` file from [Releases](https://github.com/TheKingElessar/iDeemYouWorthy/releases). Unzip it. In the main directory (the one with the `README.md` file), open a terminal and run `pip install -r requirements.txt` (or `python -m pip install -r requirements.txt` if you get an error message). This should automatically install required dependencies.
+1. Download the `.zip` file from [Releases](https://github.com/TheKingElessar/iDeemYouWorthy/releases). Unzip it. 
+2. In the main directory (the one with the `README.md` file), open a terminal and run `pip install -r requirements.txt` (or `python -m pip install -r requirements.txt` if you get an error message). This should automatically install required dependencies.  
+3. Open a terminal in the subdirectory `ideemyouworthy`, and start the `main.py` file using a command like `python main.py` (exact command might depond on how your Python environment is set up).
+4. The program will generate several files on its initial run. You'll need to enter your [account information](ACCOUNT_INFO.md) and [custom playlists](#choosing-playlists), if applicable.
 
-Then, open a terminal in the subdirectory `ideemyouworthy`, and start the `main.py` file using one of the following commands. It will depend on how your Python environment is set up.
+The program will prompt you for user input, so you can specify which playlists to get, whether to copy to iTunes, etc.
 
- - `python main.py`
- - `python3 main.py`
- - `main.py`
- 
-It should be pretty straightforward from there. Music will be downloaded into the `music` directory, which will be at the same level as the `ideemyouworthy` folder containing the code. To keep your directory clean, you should keep the entire thing in a parent directory, for example: `D:/Downloaded Music/ideemyouworthy`.
+It should be pretty straightforward from there. Music will be downloaded into the `music` directory, which will be at the same level as the `ideemyouworthy` folder containing the code. To keep your directory clean, you should keep the entire thing in a parent directory. For example: `D:/Downloaded Music/ideemyouworthy` contains the `.py` files.
 
-You'll need to add your Spotify and deezer account information to the `account_info.json` file. This file will be generated upon the first execution of `main.py`. Once it's there, gather the information following the steps below and paste it in. To verify the `.json` file is still formatted correctly, you can use https://jsonlint.com.
+#### Choosing Playlists
 
-You will be able to get the playlists from your Spotify account. You can also (or alternatively, on its own) specify playlists to track in the `custom_playlists.json` file. Once the file is generated after the first run, you can add URLs. The URL should be the key, and the string should be empty. Use https://jsonlint.com to verify it's formatted correctly.
-
-You are not giving me your password! These tokens are used to *avoid* sharing your password. All of this data is stored locally in the `account_info.json` file, and is sent exclusively to Spotify and deezer. It is safe.
-
-#### Account Info
-
-##### Finding `SPOTIFY_USERNAME`
-
- 1. Go to https://open.spotify.com/. Sign into your account.
- 2. In the top right, click your display name, then `Account`.
- 3. Your `Username` should be the first field on this page.
-
-##### Finding `SPOTIFY_CLIENT_ID`
-
- 1. Go to https://developer.spotify.com/dashboard/login. Sign into your account.
- 2. Select `CREATE AN APP`.
- 3. The `App name` and `App description` are irrelevant. Click `CREATE` when you're ready.
- 4. In the application's menu, click `Edit Settings`. Add the URL `http://example.com` in the `Redirect URIs` field. Save it.
- 5. Your `Client ID` will be near the top right, under the app name/description.
-
-##### Finding `SPOTIFY_CLIENT_SECRET`
-
- 1. In the same app you created above, click `SHOW CLIENT SECRET`.
- 2. Your `Client Secret` will appear.
- 
-##### Finding `DEEZER_ARL`
-
- 1. Follow the instructions [here](https://web.archive.org/web/20200917142534/https://notabug.org/RemixDevs/DeezloaderRemix/wiki/Login+via+userToken). When you are told to enter the ARL into Deezloader, skip that.
- 2. You should have your `ARL` copied.
-
-##### Example
-
-In the end, your `account_info.json` file should look something like this:
+You can have the program download every playlist from your Spotify account. You can also (or alternatively, on its own) specify playlists to track in the `custom_playlists.json` file. Once the file is generated after the first run, you can add playlist URLs. The URL should be the key to a JSON dictionary/object. Use https://jsonlint.com to verify it's formatted correctly. Example:
 
 ```
 {
-    "SPOTIFY_USERNAME": "sf08ug804h302gn02200g42",
-    "SPOTIFY_CLIENT_ID": "gi8h492gneisowo3ggs",
-    "SPOTIFY_CLIENT_SECRET": "fgn8932hfiewnoi32g42",
-    "DEEZER_ARL": "g4j02g9jeiodsjgo4ww"
+    "https://open.spotify.com/playlist/37i9dQZF1xD8shr5OgBdbQ": {
+        "custom_tracks": [
+            "Cotton Eye Joe - Rednex Lyrics",
+            "Video Killed the Radio Star - The Buggles Lyrics"
+        ]
+    }
 }
 ```
+
+As you can see, this is also how you can add custom tracks. The custom tracks are sourced from YouTube, so enter the search string you want used.
 
 #### Android File Transfer
 
@@ -82,6 +48,25 @@ You'll also need [Android Platform Tools](https://developer.android.com/studio/r
 Now, in a terminal, run the command `adb start-server`. When you first connect your phone, it might ask you if you want to allow some connection; allow it.
 
 Everything should work now!
+
+#### User Settings
+
+If you don't want to be prompted to enter your preferences every time, you can manually enter your settings in `user_settings.json` once and load it every time. For example:
+
+```
+{
+    "always_use_user_settings": false,
+    "get_user_playlists": false,
+    "get_custom_playlists": true,
+    "use_itunes": false,
+    "fix_itunes": false,
+    "make_m3u": true,
+    "verify_path_lengths": true,
+    "copy_to_android": true
+}
+```
+
+You have to specify every one of these settings, or you'll run into problems. Setting `always_use_user_settings` to `true` will make it always load the settings without asking you to load them.
 
 #### Updating
 
@@ -105,15 +90,14 @@ Does this download duplicate tracks if you have two playlists with the same trac
  > This doesn't download the same track twice. It keeps track of which tracks are in what playlist and where they're stored, so there is only one file for each track. Deezer automatically keeps it from downloading a track in the same file location, and iDeemYouWorthy keeps track of downloaded tracks so it can add them to playlists.
 
 I'm getting some stack overflow error!
-> This happens when you overload deemix, trying to download too many tracks at once. The best fix is to only download something like 500 tracks at a time. Use the custom playlist file to control which playlists are downloaded.
+> This happened to me in the past when I overloaded deemix, trying to download too many tracks at once. The best fix is to only download something like 500 tracks at a time. Use the custom playlist file to control which playlists are downloaded.
 
 #### Misc. notes:
 
-> **You cannot (*should not*) track two playlists that have the same name.** I haven't tested it, but it would cause *so many problems*. It would have been *very* annoying for me to have built this program with that in mind. Why would you even have two playlists with the same name in the first place?
+ - You can't track two playlists with the same name. Sorry.
+ - If you have local files in your Spotify playlist, they'll be printed to `cache/problematic_tracks.txt`. You can figure out what to do with them.
 
-> If you have local files in your Spotify playlist, they'll be printed to `cache/problematic_tracks.txt`. You can figure out what to do with them.
-
-## Rational
+## Motivation
 
 Using **Spotify** for your music is great because you can access it from anywhere, you don't have to worry about local files, and it's super easy to use.
 

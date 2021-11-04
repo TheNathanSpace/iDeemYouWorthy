@@ -1,5 +1,15 @@
 # Changelog
 
+### 1.13
+
+So much work just to hear some trashy rapper say "I be high off marijuana"...
+
+##### Added
+
+ - Ability to specify songs in `custom_playlists.json` to download from YouTube (if you want a song that isn't on Spotify)
+ - Can load settings from file `user_settings.json`
+ - Spotify local files found in playlists are downloaded from YouTube based on their title
+
 ### 1.12
 
 I really shouldn't be incrementing the version number for each change, but it's too late to stop now!

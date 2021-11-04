@@ -1,15 +1,26 @@
 from logging import Logger
 from pathlib import Path
+
+import deemix
 import spotipy
+from deemix.plugins import spotify
+from deemix.utils.localpaths import getConfigFolder
 from deezer import Deezer
 from spotipy.oauth2 import SpotifyOAuth
 import json
+import deemix.settings as settings
 
 
 class AccountManager:
 
     def __init__(self, logger: Logger):
         self.logger = logger
+
+        configFolder = getConfigFolder()
+        loaded_settings = deemix.settings.load(configFolder)
+        music_directory = Path.cwd().parents[0] / "music"
+        loaded_settings["downloadLocation"] = music_directory.as_posix()
+        self.deezer_settings = loaded_settings
 
         self.account_info_file = Path(Path.cwd().parents[0] / "account_info.json")
         self.account_info_dict = {"SPOTIFY_USERNAME": "", "SPOTIFY_CLIENT_ID": "", "SPOTIFY_CLIENT_SECRET": "",
@@ -32,7 +43,8 @@ class AccountManager:
             self.logger.debug("User account info loaded")
 
         self.spotify_scope = "playlist-read-private playlist-read-collaborative"
-        self.spotify_manager = None
+        self.spotipy = None
+        self.spotify_helper = None
 
     def login_spotify(self):
         self.logger.debug("Attempting to authorize with Spotify")
@@ -41,11 +53,26 @@ class AccountManager:
                                     redirect_uri = "https://example.com", scope = self.spotify_scope,
                                     cache_path = str(Path.cwd().parents[0] / "cache" / "spotify_token_cache.json"),
                                     username = self.account_info_dict["SPOTIFY_USERNAME"])
-        self.spotify_manager = spotipy.Spotify(auth_manager = auth_manager)
+        self.spotipy = spotipy.Spotify(auth_manager = auth_manager)
         self.logger.info("Authorized with Spotify")
+
+        deemix_spotify_settings_file = getConfigFolder() / "spotify" / "settings.json"
+        deemix_spotify_settings = json.loads(deemix_spotify_settings_file.read_text())
+        deemix_spotify_settings["clientId"] = self.account_info_dict["SPOTIFY_CLIENT_ID"]
+        deemix_spotify_settings["clientSecret"] = self.account_info_dict["SPOTIFY_CLIENT_SECRET"]
+
+        with open(deemix_spotify_settings_file, 'w') as f:
+            json.dump(deemix_spotify_settings, f, indent = 2)
+
+        self.spotify_helper = spotify.Spotify(getConfigFolder())
+        self.spotify_helper.checkCredentials()
+        self.spotify_helper.loadSettings()
+        self.logger.debug("Setup deezer Spotify helper")
 
     def login_deezer(self, deezer_object: Deezer):
         self.logger.debug("Attempting to authorize with Deezer")
         logged_in = deezer_object.login_via_arl(self.account_info_dict["DEEZER_ARL"])
         if logged_in:
             self.logger.info("Authorized with Deezer")
+        else:
+            self.logger.info("Unable to authorize with Deezer! This will likely cause lots of problems.")

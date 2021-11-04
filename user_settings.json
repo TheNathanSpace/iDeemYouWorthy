@@ -1,0 +1,10 @@
+{
+    "always_use_user_settings": false,
+    "get_user_playlists": false,
+    "get_custom_playlists": true,
+    "use_itunes": false,
+    "fix_itunes": false,
+    "make_m3u": true,
+    "verify_path_lengths": true,
+    "copy_to_android": true
+}

@@ -5,20 +5,16 @@ import os
 import shutil
 from pathlib import Path
 
-import deemix
-import deezer
 from deemix.downloader import Downloader
-from deemix.plugins import spotify
-from deemix.utils.localpaths import getConfigFolder
-import deemix.settings as settings
 from deezer import Deezer
 
 import androidmanager
 import util
+from DownloadFinishedListenerNew import DownloadFinishedListenerNew
+from DownloadedTrack import DownloadedTrack
+from PlaylistManagerNew import PlaylistManagerNew
+from TrackManagerNew import TrackManagerNew
 from accountmanager import AccountManager
-from playlistmanager import PlaylistManager
-from trackmanager import TrackManager
-from downloadfinishedlistener import DownloadFinishedListener
 from logmanager import LogManager
 from youtubemanager import YoutubeManager
 
@@ -35,24 +31,46 @@ from youtubemanager import YoutubeManager
 
 # END TESTING
 
-print("If you haven't already, be sure to install required dependencies by running the following command (see the README):")
-print("    pip install -r requirements.txt")
-print("(If you have errors, try: python -m pip install -r requirements.txt)")
+# print("If you haven't already, be sure to install required dependencies by running the following command (see the README):")
+# print("    pip install -r requirements.txt")
+# print("(If you have errors, try: python -m pip install -r requirements.txt)")
+# print()
+
+print("Welcome to iDeemYouWorthy!")
 print()
 
 log_manager = LogManager()
 logger = logging.getLogger('iDYW')
 
-use_nathan = input("Use Nathan's patented Secret Settings?™ (Optimized for Android) [y/n] ") == "y"
-if use_nathan:
-    get_user_playlists = False
-    get_custom_playlists = True
-    use_itunes = False
-    fix_itunes = False
-    make_m3u = True
-    verify_path_lengths = True
-    copy_to_android = True
+got_settings = False
+user_settings_dict = json.loads(Path(Path.cwd().parents[0] / "user_settings.json").read_text(encoding = "utf-8"))
+if user_settings_dict["always_use_user_settings"]:
+    get_user_playlists = user_settings_dict["get_user_playlists"]
+    get_custom_playlists = user_settings_dict["get_custom_playlists"]
+    use_itunes = user_settings_dict["use_itunes"]
+    fix_itunes = user_settings_dict["fix_itunes"]
+    make_m3u = user_settings_dict["make_m3u"]
+    verify_path_lengths = user_settings_dict["verify_path_lengths"]
+    copy_to_android = user_settings_dict["copy_to_android"]
+    logger.info("Loaded settings from user_settings.json (change \"always_use_user_settings\" to stop this)")
+    got_settings = True
 else:
+    use_user_settings = input("Load settings from user_settings.json? (will save for future runs) [y/n] ") == "y"
+    if use_user_settings:
+        user_settings_dict["always_use_user_settings"] = True
+        get_user_playlists = user_settings_dict["get_user_playlists"]
+        get_custom_playlists = user_settings_dict["get_custom_playlists"]
+        use_itunes = user_settings_dict["use_itunes"]
+        fix_itunes = user_settings_dict["fix_itunes"]
+        make_m3u = user_settings_dict["make_m3u"]
+        verify_path_lengths = user_settings_dict["verify_path_lengths"]
+        copy_to_android = user_settings_dict["copy_to_android"]
+        Path(Path.cwd().parents[0] / "user_settings.json").write_text(json.dumps(user_settings_dict, indent = 4, ensure_ascii = True), encoding = "utf-8")
+        logger.info("Loaded settings from user_settings.json. Stored this preference for the future.")
+        got_settings = True
+
+if not got_settings:
+    logger.debug("Requesting user settings input")
     get_user_playlists = input("Use Spotify account playlists? [y/n] ") == "y"
     get_custom_playlists = input("Use custom playlists (set in custom_playlists.json)? [y/n] ") == "y"
     use_itunes = input("Update iTunes? [y/n] ") == "y"
@@ -73,112 +91,55 @@ account_manager.login_deezer(deezer_object)
 music_directory = str(Path.cwd().parents[0] / "music")
 
 youtube_tag_dict = collections.OrderedDict()
-youtube_manager = YoutubeManager(log_manager, logger, account_manager.spotify_manager, music_directory, youtube_tag_dict)
+youtube_manager = YoutubeManager(log_manager, logger, account_manager.spotipy, music_directory, youtube_tag_dict)
 
-playlist_manager = PlaylistManager(logger, account_manager)
+playlist_manager = PlaylistManagerNew(logger = logger, account_manager = account_manager)
 
-new_playlists = None
 if get_user_playlists:
-    new_playlists = playlist_manager.get_new_user_playlists()
-    playlist_manager.store_user_playlists(new_playlists)
-
-new_custom_playlists = None
+    playlist_manager.retrieve_spotify_playlists()
 if get_custom_playlists:
-    new_custom_playlists = playlist_manager.read_custom_playlists()
+    playlist_manager.retrieve_custom_playlists()
 
-if new_playlists and new_custom_playlists:
-    new_playlists = {**new_playlists, **new_custom_playlists}
-elif new_custom_playlists and not new_playlists:
-    new_playlists = new_custom_playlists
-
-if new_playlists is None:
+if len(playlist_manager.playlists) == 0:
     logger.info("You aren't tracking any playlists! I'm all done! :)")
     quit()
 
-playlist_manager.create_playlist_files(new_playlists)
+playlist_manager.create_playlist_files()
 
-track_manager = TrackManager(logger, account_manager)
+unique_spotify_tracks: list = []
+len1 = playlist_manager.get_unique_tracks(unique_spotify_tracks)
 
-playlist_changes = track_manager.find_new_tracks(new_playlists)
+all_custom_tracks: list = []
+len2 = playlist_manager.get_custom_tracks(all_custom_tracks)
 
-tracks_to_download = track_manager.clear_duplicate_downloads(playlist_changes)
+logger.info(f"Found {str(len1 + len2)} new tracks in total")
 
-if len(tracks_to_download) > 0:
-    logger.debug("Downloading " + str(len(tracks_to_download)) + " tracks total")
-    configFolder = getConfigFolder()
-    settings = settings.load(configFolder)
-    settings["downloadLocation"] = music_directory
+track_manager = TrackManagerNew(logger = logger, account_manager = account_manager)
+track_manager.unique_spotify_tracks = unique_spotify_tracks
+track_manager.custom_tracks = all_custom_tracks
 
-    deemix_spotify_settings_file = configFolder / "spotify" / "settings.json"
-    deemix_spotify_settings = json.loads(deemix_spotify_settings_file.read_text())
-    deemix_spotify_settings["clientId"] = account_manager.account_info_dict["SPOTIFY_CLIENT_ID"]
-    deemix_spotify_settings["clientSecret"] = account_manager.account_info_dict["SPOTIFY_CLIENT_SECRET"]
+listener = DownloadFinishedListenerNew(track_manager = track_manager, logger = logger)
+logger.info("Converting Spotify tracks to deezer and YouTube, this might take a while...")
+track_manager.process_spotify_tracks(deezer_object = deezer_object, listener = listener, youtube_manager = youtube_manager)
+track_manager.process_custom_tracks(youtube_manager = youtube_manager)
 
-    with open(deemix_spotify_settings_file, 'w') as f:
-        json.dump(deemix_spotify_settings, f, indent = 2)
+if len(track_manager.deezer_tracks) + len(track_manager.youtube_tracks) == 0:
+    logger.info("Downloading 0 tracks!")
 
-    spotify_helper = spotify.Spotify(configFolder)
-    spotify_helper.checkCredentials()
-    spotify_helper.loadSettings()
+if len(track_manager.deezer_tracks) != 0:
+    listener.deezer_tracks_to_download = len(track_manager.deezer_tracks)
+    downloaded_track: DownloadedTrack
+    for downloaded_track in track_manager.deezer_tracks:
+        downloader = Downloader(dz = deezer_object, downloadObject = downloaded_track.deezer_single, settings = account_manager.deezer_settings, listener = listener)
+        listener.downloader = downloader
+        downloader.start()
 
-    downloaded_tracks = collections.OrderedDict()
-
-    listener = DownloadFinishedListener(logger, downloaded_tracks, track_manager, new_playlists, playlist_changes, use_itunes)
-
-    queue_list = list()
-    youtube_list = list()
-
-    logger.info("Converting Spotify tracks, this might take a while...")
-    for track in tracks_to_download:
-        split_uri = track.split(":")
-
-        if split_uri[1] == "local":
-            track_manager.store_problematic_track(track)
-        else:
-            spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
-
-            try:
-                download_object = deemix.generateDownloadObject(dz = deezer_object, link = spotify_url, bitrate = deezer.TrackFormats.MP3_320, plugins = {"spotify": spotify_helper}, listener = listener)
-
-                deezer_uuid = "track_" + str(download_object.id) + "_3"
-                downloaded_tracks[track] = deezer_uuid
-
-                queue_list.append(download_object)
-
-            except Exception as e:
-                youtube_tag_dict[track] = track_manager.get_track_data(track)
-
-                search_string = youtube_manager.get_search_string(split_uri[2])
-                first_result = youtube_manager.search(search_string)
-                youtube_list.append(first_result)
-                downloaded_tracks[track] = first_result
-
-    logger.info("Downloading " + str(len(queue_list)) + " deezer tracks")
-    logger.info("Downloading " + str(len(youtube_list)) + " YouTube tracks")
-
-    youtube_num = len(youtube_list)
-
-    if youtube_num != 0:
-        youtube_manager.url_list = youtube_list
-        youtube_manager.youtube_tracks_to_download = youtube_num
-        listener.youtube_manager = youtube_manager
-
-    if len(queue_list) != 0:
-        listener.deezer_tracks_to_download = len(queue_list)
-        for download_object in queue_list:
-            downloader = Downloader(dz = deezer_object, downloadObject = download_object, settings = settings, listener = listener)
-            listener.downloader = downloader
-            downloader.start()
-
-    else:
-        youtube_manager.update_objects(downloaded_tracks, new_playlists, playlist_changes, use_itunes, track_manager)
-        youtube_manager.start_download_process()
-
-    if youtube_num != 0:
-        youtube_manager.add_tags()
-
-else:
-    logger.info("Downloading 0 tracks")
+if len(track_manager.youtube_tracks) != 0:
+    youtube_manager.in_process_list = track_manager.youtube_tracks.copy()
+    youtube_manager.all_tracks_to_download = track_manager.youtube_tracks.copy()
+    listener.youtube_manager = youtube_manager
+    youtube_manager.start_download_process()
+    youtube_manager.add_tags()
 
 logger.info("Fixing track file paths and updating playlists, this might take a while...")
 if verify_path_lengths:
@@ -195,14 +156,13 @@ if verify_path_lengths:
             master_track_dict[playlist_uri]["download_location"] = new_path.as_posix()
             master_track_file.write_text(json.dumps(master_track_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
 
+playlist_manager.add_new_tracks(use_itunes = use_itunes)
+
 if fix_itunes:
     track_manager.verify_itunes()
 
 if make_m3u:
     playlist_manager.create_m3u()
-
-if not track_manager.has_finished_queue:
-    track_manager.finished_queue([], new_playlists, playlist_changes, use_itunes)
 
 if copy_to_android:
     while True:
