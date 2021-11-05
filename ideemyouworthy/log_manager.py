@@ -11,7 +11,7 @@ class LogManager:
         self.log_file.touch()
 
         self.deemix_logger = logging.getLogger('deemix')
-        self.deemix_logger.setLevel(logging.INFO)
+        self.deemix_logger.setLevel(logging.DEBUG)
 
         self.yt_logger = logging.getLogger('youtube-dl')
         self.yt_logger.setLevel(logging.INFO)
@@ -34,7 +34,7 @@ class LogManager:
 
         system_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
         system_handler.setFormatter(formatter)
-        system_handler.setLevel(logging.WARNING)
+        system_handler.setLevel(logging.CRITICAL)
 
         self.system_logger.addHandler(system_handler)
         self.deemix_logger.addHandler(main_handler)

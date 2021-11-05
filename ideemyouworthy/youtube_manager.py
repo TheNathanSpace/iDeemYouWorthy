@@ -86,8 +86,6 @@ class YoutubeManager:
 
     def start_download_process(self):
         self.logger.debug("Starting YouTube downloads")
-        self.logger.info("---  YouTube downloads:  ---")
-
         self.currently_downloading = True
         self.continue_download_process()
 

@@ -31,7 +31,10 @@ def transfer_all(logger: Logger):
     for file in all_music:
         file_name = file.name
         file_parent = file.parents[0].name
-        android_path = f"/storage/emulated/0/Music/music/{file_parent}/{file_name}"
+        if file.suffix == ".jpg":
+            android_path = f"/storage/emulated/0/Music/music/{file_parent}/folder{file.suffix}"
+        else:
+            android_path = f"/storage/emulated/0/Music/music/{file_parent}/{file_name}"
         exists = "No such file or directory" not in device.shell(f"ls \"{android_path}\"")
         if not exists:
             device.push(file, android_path)
@@ -45,6 +48,7 @@ def transfer_all(logger: Logger):
     for file in all_playlists:
         file_name = file.name
         android_path = f"/storage/emulated/0/Music/playlists/{file_name}"
+
         device.push(file, android_path)
         transferred_count += 1
 

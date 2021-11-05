@@ -94,7 +94,12 @@ class PlaylistManager:
                 original_custom_playlists[playlist_url]["name"] = playlist_name
 
                 playlist: Playlist = Playlist(spotify_uri = playlist_uri, name = playlist_name, logger = self.logger, account_manager = self.account_manager)
-                playlist.custom_track_strings = original_custom_playlists[playlist_url]["custom_tracks"]
+                if "custom_tracks" in original_custom_playlists[playlist_url]:
+                    playlist.custom_track_strings = original_custom_playlists[playlist_url]["custom_tracks"]
+                else:
+                    playlist.custom_track_strings = []
+                    original_custom_playlists[playlist_url]["custom_tracks"] = []
+
                 self.playlists.append(playlist)
                 valid_count += 1
 
@@ -154,6 +159,7 @@ class PlaylistManager:
     def add_new_tracks(self, use_itunes: bool):
         playlist: Playlist
         for playlist in self.playlists:
+            playlist.playlist_file.write_text(json.dumps([]))
             downloaded_track: DownloadedTrack
             for spotify_uri in (*playlist.spotify_tracks, *playlist.custom_track_strings):
                 playlist.add_track(spotify_uri)

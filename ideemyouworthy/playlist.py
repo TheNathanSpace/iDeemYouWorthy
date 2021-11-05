@@ -118,13 +118,13 @@ class Playlist:
         old_tracks = self.load_tracks_from_file()
 
         newly_added = new_tracks.copy()
-        to_remove = set()
+        to_remove = []
         for track in newly_added:
             if track in old_tracks:
-                to_remove.add(track)
+                to_remove.append(track)
 
         for track in to_remove:
-            newly_added.pop(track)
+            newly_added.remove(track)
 
         self.newly_added = newly_added
 
@@ -159,6 +159,8 @@ class Playlist:
 
     def update_playlist_file(self):
         old_master_track_dict = json.loads(self.master_track_file.read_text(encoding = "utf-8"))
+        self.playlist_file.write_text(json.dumps([]))
+
         for track_uri in self.spotify_tracks:
             if track_uri in old_master_track_dict:
                 self.add_track(track_uri)

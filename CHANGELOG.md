@@ -10,6 +10,10 @@ So much work just to hear some trashy rapper say "I be high off marijuana"...
  - Can load settings from file `user_settings.json`
  - Spotify local files found in playlists are downloaded from YouTube based on their title
 
+##### Changed
+
+ - Album artwork is renamed to `folder.jpg` when copied to Android so as not to clutter up your photos
+
 ### 1.12
 
 I really shouldn't be incrementing the version number for each change, but it's too late to stop now!

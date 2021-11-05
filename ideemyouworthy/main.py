@@ -2,6 +2,7 @@ import collections
 import json
 import logging
 import os
+import shutil
 from pathlib import Path
 
 from deemix.downloader import Downloader
@@ -117,7 +118,7 @@ track_manager = TrackManager(logger = logger, account_manager = account_manager)
 track_manager.unique_spotify_tracks = unique_spotify_tracks
 track_manager.custom_tracks = all_custom_tracks
 
-listener = DownloadFinishedListener(track_manager = track_manager, logger = logger)
+listener = DownloadFinishedListener(track_manager = track_manager, youtube_manager = youtube_manager, logger = logger)
 logger.info("Converting Spotify tracks to deezer and YouTube, this might take a while...")
 track_manager.process_spotify_tracks(deezer_object = deezer_object, listener = listener, youtube_manager = youtube_manager)
 track_manager.process_custom_tracks(youtube_manager = youtube_manager)
@@ -126,14 +127,17 @@ if len(track_manager.deezer_tracks) + len(track_manager.youtube_tracks) == 0:
     logger.info("Downloading 0 tracks!")
 
 if len(track_manager.deezer_tracks) != 0:
+    logger.info("---  deezer downloads:  ---")
     listener.deezer_tracks_to_download = len(track_manager.deezer_tracks)
     downloaded_track: DownloadedTrack
     for downloaded_track in track_manager.deezer_tracks:
         downloader = Downloader(dz = deezer_object, downloadObject = downloaded_track.deezer_single, settings = account_manager.deezer_settings, listener = listener)
         listener.downloader = downloader
         downloader.start()
+        # todo: fallback bitrate
 
 if len(track_manager.youtube_tracks) != 0:
+    logger.info("---  YouTube downloads:  ---")
     youtube_manager.in_process_list = track_manager.youtube_tracks.copy()
     youtube_manager.all_tracks_to_download = track_manager.youtube_tracks.copy()
     listener.youtube_manager = youtube_manager
