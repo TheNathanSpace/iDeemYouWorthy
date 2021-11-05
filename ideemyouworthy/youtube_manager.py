@@ -12,8 +12,8 @@ from mutagen import File
 import yt_dlp
 
 import util
-from DownloadedTrack import DownloadedTrack
-from logmanager import YTLogger, LogManager
+from downloaded_track import DownloadedTrack
+from log_manager import LogManager, YTLogger
 
 
 class YoutubeManager:

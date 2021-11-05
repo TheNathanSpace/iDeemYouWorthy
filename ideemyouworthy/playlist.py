@@ -7,22 +7,10 @@ import win32com.client
 from spotipy import SpotifyException
 
 import util
-from accountmanager import AccountManager
+from account_manager import AccountManager
 
 
 class Playlist:
-
-    # Methods:
-    #  - Save to name.json
-    #  - Export to name.m3u
-    # Fields:
-    #  x Spotify URI
-    #  x Name
-    #  x Spotify song list
-    #  x New tracks list
-    #  x Deezer song list
-    #  x Extra song list
-    #  - M3U file
 
     def __init__(self, spotify_uri: str, name: str, logger: Logger, account_manager: AccountManager):
         self.spotify_uri: str = spotify_uri

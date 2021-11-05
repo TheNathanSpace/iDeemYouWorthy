@@ -9,9 +9,9 @@ from urllib.parse import urlparse
 from spotipy import SpotifyException
 
 import util
-from DownloadedTrack import DownloadedTrack
-from Playlist import Playlist
-from accountmanager import AccountManager
+from account_manager import AccountManager
+from downloaded_track import DownloadedTrack
+from playlist import Playlist
 
 
 def url_to_uri(url):
@@ -22,14 +22,7 @@ def url_to_uri(url):
         return None
 
 
-class PlaylistManagerNew:
-
-    # Methods:
-    #  x Load playlists from custom_playlists.json
-    #  x Load playlists from Spotify account
-    # Fields:
-    #  x List of Playlists
-    #  x AccountManager
+class PlaylistManager:
 
     def __init__(self, logger: Logger, account_manager: AccountManager):
         self.logger: Logger = logger

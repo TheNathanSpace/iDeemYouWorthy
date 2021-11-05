@@ -2,21 +2,10 @@ import collections
 import json
 import logging
 import os
-import shutil
 from pathlib import Path
 
 from deemix.downloader import Downloader
 from deezer import Deezer
-
-import androidmanager
-import util
-from DownloadFinishedListenerNew import DownloadFinishedListenerNew
-from DownloadedTrack import DownloadedTrack
-from PlaylistManagerNew import PlaylistManagerNew
-from TrackManagerNew import TrackManagerNew
-from accountmanager import AccountManager
-from logmanager import LogManager
-from youtubemanager import YoutubeManager
 
 # START TESTING
 
@@ -35,6 +24,15 @@ from youtubemanager import YoutubeManager
 # print("    pip install -r requirements.txt")
 # print("(If you have errors, try: python -m pip install -r requirements.txt)")
 # print()
+import android_manager
+import util
+from account_manager import AccountManager
+from download_finished_listener import DownloadFinishedListener
+from downloaded_track import DownloadedTrack
+from log_manager import LogManager
+from playlist_manager import PlaylistManager
+from track_manager import TrackManager
+from youtube_manager import YoutubeManager
 
 print("Welcome to iDeemYouWorthy!")
 print()
@@ -43,21 +41,9 @@ log_manager = LogManager()
 logger = logging.getLogger('iDYW')
 
 got_settings = False
-user_settings_dict = json.loads(Path(Path.cwd().parents[0] / "user_settings.json").read_text(encoding = "utf-8"))
-if user_settings_dict["always_use_user_settings"]:
-    get_user_playlists = user_settings_dict["get_user_playlists"]
-    get_custom_playlists = user_settings_dict["get_custom_playlists"]
-    use_itunes = user_settings_dict["use_itunes"]
-    fix_itunes = user_settings_dict["fix_itunes"]
-    make_m3u = user_settings_dict["make_m3u"]
-    verify_path_lengths = user_settings_dict["verify_path_lengths"]
-    copy_to_android = user_settings_dict["copy_to_android"]
-    logger.info("Loaded settings from user_settings.json (change \"always_use_user_settings\" to stop this)")
-    got_settings = True
-else:
-    use_user_settings = input("Load settings from user_settings.json? (will save for future runs) [y/n] ") == "y"
-    if use_user_settings:
-        user_settings_dict["always_use_user_settings"] = True
+if Path(Path.cwd().parents[0] / "user_settings.json").exists():
+    user_settings_dict = json.loads(Path(Path.cwd().parents[0] / "user_settings.json").read_text(encoding = "utf-8"))
+    if user_settings_dict["always_use_user_settings"]:
         get_user_playlists = user_settings_dict["get_user_playlists"]
         get_custom_playlists = user_settings_dict["get_custom_playlists"]
         use_itunes = user_settings_dict["use_itunes"]
@@ -65,9 +51,22 @@ else:
         make_m3u = user_settings_dict["make_m3u"]
         verify_path_lengths = user_settings_dict["verify_path_lengths"]
         copy_to_android = user_settings_dict["copy_to_android"]
-        Path(Path.cwd().parents[0] / "user_settings.json").write_text(json.dumps(user_settings_dict, indent = 4, ensure_ascii = True), encoding = "utf-8")
-        logger.info("Loaded settings from user_settings.json. Stored this preference for the future.")
+        logger.info("Loaded settings from user_settings.json (change \"always_use_user_settings\" to stop this)")
         got_settings = True
+    else:
+        use_user_settings = input("Load settings from user_settings.json? (will save for future runs) [y/n] ") == "y"
+        if use_user_settings:
+            user_settings_dict["always_use_user_settings"] = True
+            get_user_playlists = user_settings_dict["get_user_playlists"]
+            get_custom_playlists = user_settings_dict["get_custom_playlists"]
+            use_itunes = user_settings_dict["use_itunes"]
+            fix_itunes = user_settings_dict["fix_itunes"]
+            make_m3u = user_settings_dict["make_m3u"]
+            verify_path_lengths = user_settings_dict["verify_path_lengths"]
+            copy_to_android = user_settings_dict["copy_to_android"]
+            Path(Path.cwd().parents[0] / "user_settings.json").write_text(json.dumps(user_settings_dict, indent = 4, ensure_ascii = True), encoding = "utf-8")
+            logger.info("Loaded settings from user_settings.json. Stored this preference for the future.")
+            got_settings = True
 
 if not got_settings:
     logger.debug("Requesting user settings input")
@@ -93,7 +92,7 @@ music_directory = str(Path.cwd().parents[0] / "music")
 youtube_tag_dict = collections.OrderedDict()
 youtube_manager = YoutubeManager(log_manager, logger, account_manager.spotipy, music_directory, youtube_tag_dict)
 
-playlist_manager = PlaylistManagerNew(logger = logger, account_manager = account_manager)
+playlist_manager = PlaylistManager(logger = logger, account_manager = account_manager)
 
 if get_user_playlists:
     playlist_manager.retrieve_spotify_playlists()
@@ -114,11 +113,11 @@ len2 = playlist_manager.get_custom_tracks(all_custom_tracks)
 
 logger.info(f"Found {str(len1 + len2)} new tracks in total")
 
-track_manager = TrackManagerNew(logger = logger, account_manager = account_manager)
+track_manager = TrackManager(logger = logger, account_manager = account_manager)
 track_manager.unique_spotify_tracks = unique_spotify_tracks
 track_manager.custom_tracks = all_custom_tracks
 
-listener = DownloadFinishedListenerNew(track_manager = track_manager, logger = logger)
+listener = DownloadFinishedListener(track_manager = track_manager, logger = logger)
 logger.info("Converting Spotify tracks to deezer and YouTube, this might take a while...")
 track_manager.process_spotify_tracks(deezer_object = deezer_object, listener = listener, youtube_manager = youtube_manager)
 track_manager.process_custom_tracks(youtube_manager = youtube_manager)
@@ -170,7 +169,7 @@ if copy_to_android:
         os.system("adb start-server")
 
         try:
-            androidmanager.transfer_all(logger)
+            android_manager.transfer_all(logger)
             break
         except Exception as e:
             logger.error("Error copying files to Android:")

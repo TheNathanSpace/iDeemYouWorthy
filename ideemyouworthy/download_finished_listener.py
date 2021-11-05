@@ -5,12 +5,12 @@ from pathlib import Path
 from deemix.__main__ import LogListener
 from tinytag import TinyTag
 
-from DownloadedTrack import DownloadedTrack
-from TrackManagerNew import TrackManagerNew
+from downloaded_track import DownloadedTrack
+from track_manager import TrackManager
 
 
-class DownloadFinishedListenerNew(LogListener):
-    def __init__(self, track_manager: TrackManagerNew, logger: Logger):
+class DownloadFinishedListener(LogListener):
+    def __init__(self, track_manager: TrackManager, logger: Logger):
         self.track_manager = track_manager
         self.logger: Logger = logger
 

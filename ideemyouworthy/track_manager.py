@@ -9,19 +9,12 @@ import deezer
 from tinytag import TinyTag
 
 import util
-from DownloadedTrack import DownloadedTrack
-from accountmanager import AccountManager
-from youtubemanager import YoutubeManager
+from account_manager import AccountManager
+from downloaded_track import DownloadedTrack
+from youtube_manager import YoutubeManager
 
 
-class TrackManagerNew:
-
-    # Methods:
-    #  x Load playlists from custom_playlists.json
-    #  x Load playlists from Spotify account
-    # Fields:
-    #  x List of Playlists
-    #  x AccountManager
+class TrackManager:
 
     def __init__(self, logger: Logger, account_manager: AccountManager):
         self.logger = logger
