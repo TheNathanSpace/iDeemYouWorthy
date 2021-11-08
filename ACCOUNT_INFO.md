@@ -15,7 +15,7 @@ You are not giving me your password! These tokens are used to *avoid* sharing yo
  1. Go to https://developer.spotify.com/dashboard/login. Sign into your account.
  2. Select `CREATE AN APP`.
  3. The `App name` and `App description` are irrelevant. Click `CREATE` when you're ready.
- 4. In the application's menu, click `Edit Settings`. Add the URL `http://example.com` in the `Redirect URIs` field. Save it.
+ 4. In the application's menu, click `Edit Settings`. Add the URL `https://example.com` in the `Redirect URIs` field. Save it.
  5. Your `Client ID` will be near the top right, under the app name/description.
 
 ##### Finding `SPOTIFY_CLIENT_SECRET`

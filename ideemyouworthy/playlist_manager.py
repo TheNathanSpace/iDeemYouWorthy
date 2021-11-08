@@ -103,9 +103,8 @@ class PlaylistManager:
                 self.playlists.append(playlist)
                 valid_count += 1
 
-            except Exception as e:
+            except SpotifyException as e:
                 self.logger.error(f"Playlist {playlist_url} is not a valid Spotify playlist! (will ignore)")
-                self.logger.error(f"Check that your custom_playlists.json file is formatted correctly (check the README.md for an example).")
                 self.logger.debug(e)
 
         self.custom_playlist_file.write_text(json.dumps(original_custom_playlists, indent = 4, ensure_ascii = False), encoding = "utf-8")
