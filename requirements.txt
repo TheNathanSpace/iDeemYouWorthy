@@ -5,3 +5,4 @@ tinytag>=1.5.0
 yt-dlp>=2021.10.22
 youtube-search>=2.1.0
 pure-python-adb>=0.3.0.dev0
+spotipy>=2.16.1
