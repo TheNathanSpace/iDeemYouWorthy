@@ -57,6 +57,11 @@ class AccountManager:
         self.logger.info("Authorized with Spotify")
 
         deemix_spotify_settings_file = getConfigFolder() / "spotify" / "settings.json"
+        if not deemix_spotify_settings_file.exists():
+            deemix_spotify_settings_file.parent.mkdir(parents = True, exist_ok = True)
+            deemix_spotify_settings_file.touch()
+            deemix_spotify_settings_file.write_text(json.dumps({}))
+
         deemix_spotify_settings = json.loads(deemix_spotify_settings_file.read_text())
         deemix_spotify_settings["clientId"] = self.account_info_dict["SPOTIFY_CLIENT_ID"]
         deemix_spotify_settings["clientSecret"] = self.account_info_dict["SPOTIFY_CLIENT_SECRET"]
