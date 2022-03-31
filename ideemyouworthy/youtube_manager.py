@@ -81,6 +81,7 @@ class YoutubeManager:
 
     def search(self, search_string):
         search_result_dict = YoutubeSearch(search_string, max_results = 1).to_dict()
+        # print(f"{search_string}: {search_result_dict}")
         first_result = search_result_dict[0]["url_suffix"]
         return first_result
 

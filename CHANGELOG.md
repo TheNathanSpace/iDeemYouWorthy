@@ -1,5 +1,18 @@
 # Changelog
 
+### 1.13.1
+
+Some useful bug fixes that I _probably_ should have committed before I plugged this on Reddit...
+
+##### Added
+
+ - Ability to store past playlist versions (see [README](https://github.com/TheKingElessar/iDeemYouWorthy#User-Settings))
+
+##### Fixed
+
+ - Crash when playlist cover art was missing.
+ - Changed Android playlist structure to work with S2 music app.
+
 ### 1.13
 
 So much work just to hear some trashy rapper say "I be high off marijuana"...

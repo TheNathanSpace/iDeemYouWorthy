@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from logging import Logger
 from pathlib import Path
 
@@ -72,7 +73,11 @@ class Playlist:
         self.logger.debug(f"Created new playlist: {self.name}")
 
     def save_cover_art(self):
-        playlist_cover_url = self.account_manager.spotipy.playlist_cover_image(self.get_id())[0]["url"]
+        cover_list = self.account_manager.spotipy.playlist_cover_image(self.get_id())
+        if len(cover_list) <= 0:
+            return
+
+        playlist_cover_url = cover_list[0]["url"]
         if not self.cover_file.exists():
             self.cover_file.touch()
 
@@ -107,6 +112,12 @@ class Playlist:
 
         return self.spotify_tracks
 
+    def archive_version(self):
+        playlist_folder: Path = self.playlist_file.parent
+        Path.mkdir(playlist_folder / "archive", exist_ok = True)
+        archive = Path(playlist_folder / "archive" / f"{self.name}_archive_{(str(datetime.now())).replace(':', '꞉')}.json")
+        archive.write_text(self.playlist_file.read_text(encoding = 'utf-8'), encoding = 'utf-8')
+
     def load_tracks_from_file(self):
         if self.playlist_file.exists():
             tracks = json.loads(self.playlist_file.read_text(encoding = "utf-8"))
@@ -127,6 +138,8 @@ class Playlist:
             newly_added.remove(track)
 
         self.newly_added = newly_added
+        if len(self.newly_added) > 0:
+            self.archive_version()
 
         return newly_added
 

@@ -2,13 +2,22 @@ import collections
 import json
 import logging
 import os
-import shutil
 from pathlib import Path
 
 from deemix.downloader import Downloader
 from deezer import Deezer
 
-# START TESTING
+import android_manager
+import util
+from account_manager import AccountManager
+from download_finished_listener import DownloadFinishedListener
+from downloaded_track import DownloadedTrack
+from log_manager import LogManager
+from playlist_manager import PlaylistManager
+from track_manager import TrackManager
+from youtube_manager import YoutubeManager
+
+# START TESTING (I'm sorry, I'm not educated on writing tests so this is as good as I've got right now)
 
 # delete_path = Path(Path.cwd().parent / "playlists")
 # if delete_path.exists(): shutil.rmtree(delete_path)
@@ -20,20 +29,6 @@ from deezer import Deezer
 # if delete_path.exists(): os.remove(delete_path)
 
 # END TESTING
-
-# print("If you haven't already, be sure to install required dependencies by running the following command (see the README):")
-# print("    pip install -r requirements.txt")
-# print("(If you have errors, try: python -m pip install -r requirements.txt)")
-# print()
-import android_manager
-import util
-from account_manager import AccountManager
-from download_finished_listener import DownloadFinishedListener
-from downloaded_track import DownloadedTrack
-from log_manager import LogManager
-from playlist_manager import PlaylistManager
-from track_manager import TrackManager
-from youtube_manager import YoutubeManager
 
 print("Welcome to iDeemYouWorthy!")
 print()

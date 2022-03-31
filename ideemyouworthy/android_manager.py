@@ -41,13 +41,14 @@ def transfer_all(logger: Logger):
             transferred_count += 1
 
     all_playlists: List[Path] = []
-    for dirname, dirnames, filenames in os.walk(playlists_path):
-        for filename in filenames:
-            all_playlists.append(Path(os.path.join(dirname, filename)))
+    for file in playlists_path.iterdir():
+        if file.is_dir(): continue
+        if Path(file).suffix in [".m3u", ".jpg"]: # Don't copy the .json playlist files
+            all_playlists.append(file)
 
     for file in all_playlists:
         file_name = file.name
-        android_path = f"/storage/emulated/0/Music/playlists/{file_name}"
+        android_path = f"/storage/emulated/0/Music/{file_name}"
 
         device.push(file, android_path)
         transferred_count += 1

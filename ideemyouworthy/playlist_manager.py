@@ -2,8 +2,8 @@ import collections
 import json
 import os
 from logging import Logger
-from posixpath import basename, dirname
 from pathlib import Path
+from posixpath import basename, dirname
 from urllib.parse import urlparse
 
 from spotipy import SpotifyException
@@ -188,8 +188,9 @@ class PlaylistManager:
                     try:
                         track_file_path = master_track_dict[track]["download_location"]
                         hard_path = Path(track_file_path)
-                        relative_path = os.path.relpath(path = hard_path, start = playlist_m3u.parent)
-                        append_file.write(str(relative_path) + "\n")
+                        # relative_path = os.path.relpath(path = hard_path, start = playlist_m3u.parent)
+                        relative_path = os.path.relpath(path = hard_path, start = playlist_m3u.parent.parent)
+                        append_file.write(str(relative_path).replace("\\", "/") + "\n")
                     except Exception as e:
                         self.logger.error(f"Exception when writing m3u file for {playlist_m3u.as_posix()}:")
                         self.logger.error(e)
