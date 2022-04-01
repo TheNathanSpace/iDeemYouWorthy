@@ -68,9 +68,7 @@ If you don't want to be prompted to enter your preferences every time, you can m
 
 You have to specify every one of these settings, or you'll run into problems. Setting `always_use_user_settings` to `true` will make it always load the settings without asking you to load them.
 
-##### Storing Past Playlist Versions
-
-If you uncomment (remove the `#`) [line 142 of `playlist.py`](/ideemyouworthy/playlist.py#L142), the `[playlist].json` files will be backed up each time they're changed. That can be used if you want to store past versions of the playlist.
+Past playlist snapshots will be backed up each time they're changed, so if you want to see an earlier version, they're found in the `playlists/archive` directory.
 
 #### Updating
 

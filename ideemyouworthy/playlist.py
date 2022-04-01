@@ -129,16 +129,21 @@ class Playlist:
         old_tracks = self.load_tracks_from_file()
 
         newly_added = new_tracks.copy()
-        to_remove = []
+        already_added = []
         for track in newly_added:
             if track in old_tracks:
-                to_remove.append(track)
+                already_added.append(track)
 
-        for track in to_remove:
+        will_be_removed = []
+        for track in old_tracks:
+            if track not in newly_added:
+                will_be_removed.append(track)
+
+        for track in already_added:
             newly_added.remove(track)
 
         self.newly_added = newly_added
-        if len(self.newly_added) > 0:
+        if len(self.newly_added) > 0 or len(will_be_removed) > 0:
             self.archive_version()
 
         return newly_added
