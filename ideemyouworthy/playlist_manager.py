@@ -1,6 +1,8 @@
 import collections
 import json
 import os
+import re
+from datetime import datetime
 from logging import Logger
 from pathlib import Path
 from posixpath import basename, dirname
@@ -55,6 +57,8 @@ class PlaylistManager:
 
         self.playlists_directory = Path.cwd().parents[0] / "playlists"
         Path.mkdir(self.playlists_directory, exist_ok = True)
+
+        self.init_archive_dict()
 
         self.logger.debug("Initialized playlist manager")
 
@@ -192,5 +196,30 @@ class PlaylistManager:
                         relative_path = os.path.relpath(path = hard_path, start = playlist_m3u.parent.parent)
                         append_file.write(str(relative_path).replace("\\", "/") + "\n")
                     except Exception as e:
-                        self.logger.error(f"Exception when writing m3u file for {playlist_m3u.as_posix()}:")
+                        self.logger.error(f"Exception when writing m3u file for playlist [{playlist_m3u.stem}]:")
                         self.logger.error(e)
+
+    def init_archive_dict(self):
+        playlist_folder: Path = self.playlists_directory
+        self.archive_folder = Path(playlist_folder / "archive")
+        Path.mkdir(self.archive_folder, exist_ok = True)
+        archive_dict = {}
+        for file in self.archive_folder.iterdir():
+            match = re.match(pattern = "(.*)_archive_([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}꞉[0-9]{2}꞉[0-9]{2}\.[0-9]*)\.json", string = file.name)
+            if match:
+                playlist_name = match.group(1)
+                if playlist_name not in archive_dict:
+                    archive_dict[playlist_name] = []
+
+                date_string = match.group(2)
+                date_object = datetime.strptime(date_string, "%Y-%m-%d %H꞉%M꞉%S.%f")
+                archive_dict[playlist_name].append(date_object)
+
+        for playlist in archive_dict:
+            archive_dict[playlist] = sorted(archive_dict[playlist], reverse = True)
+
+        self.archive_dict = archive_dict
+
+    def archive_playlists(self):
+        for playlist in self.playlists:
+            playlist.archive_version(self.archive_dict)

@@ -1,7 +1,9 @@
 import json
+import re
 from datetime import datetime
 from logging import Logger
 from pathlib import Path
+from typing import Dict
 
 import requests
 import win32com.client
@@ -112,11 +114,23 @@ class Playlist:
 
         return self.spotify_tracks
 
-    def archive_version(self):
+    def archive_version(self, archive_dict: Dict):
         playlist_folder: Path = self.playlist_file.parent
-        Path.mkdir(playlist_folder / "archive", exist_ok = True)
-        archive = Path(playlist_folder / "archive" / f"{self.name}_archive_{(str(datetime.now())).replace(':', '꞉')}.json")
-        archive.write_text(self.playlist_file.read_text(encoding = 'utf-8'), encoding = 'utf-8')
+        archive_folder = Path(playlist_folder / "archive")
+
+        new_archive_file = Path(archive_folder / f"{self.name}_archive_{(str(datetime.now())).replace(':', '꞉')}.json")
+        current_version_text = self.playlist_file.read_text(encoding = 'utf-8')
+
+        if self.name in archive_dict:
+            old_time = archive_dict[self.name][0]
+            old_time_string = old_time.strftime("%Y-%m-%d %H:%M:%S.%f").replace(":", "꞉")
+            old_filename = self.name + "_archive_" + old_time_string + ".json"
+            old_text = (archive_folder / Path(old_filename)).read_text(encoding = 'utf-8')
+            if old_text == current_version_text:
+                return
+
+        new_archive_file.touch()
+        new_archive_file.write_text(current_version_text, encoding = 'utf-8')
 
     def load_tracks_from_file(self):
         if self.playlist_file.exists():
@@ -143,8 +157,6 @@ class Playlist:
             newly_added.remove(track)
 
         self.newly_added = newly_added
-        if len(self.newly_added) > 0 or len(will_be_removed) > 0:
-            self.archive_version()
 
         return newly_added
 
