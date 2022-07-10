@@ -96,8 +96,9 @@ class YoutubeManager:
             self.current_downloaded_track: DownloadedTrack = self.in_process_list.pop()
             try:
                 youtube_dl_manager.download([self.base_url + self.current_downloaded_track.youtube_url])
+                # todo: since this calls itself for every track, you get "maximum recursion depth exceeded"
             except Exception as e:
-                self.logger.error("Couldn't download track from YouTube:")
+                self.logger.error(f"Couldn't download track [{self.current_downloaded_track.youtube_url}] from YouTube:")
                 self.logger.error(e)
 
                 if len(self.in_process_list) != 0:
@@ -112,7 +113,7 @@ class YoutubeManager:
             self.current_downloaded_track.download_location = Path(fake_path)
             self.current_downloaded_track.store_to_master_file()
 
-            self.logger.info("[" + str(self.current_download_count) + "/" + str(len(self.all_tracks_to_download)) + "] Downloaded " + fake_path)
+            self.logger.info("[" + str(self.current_download_count) + "/" + str(len(self.all_tracks_to_download)) + "] Downloaded " + self.current_downloaded_track.download_location.name)
 
             if len(self.in_process_list) != 0:
                 self.continue_download_process()
@@ -123,6 +124,9 @@ class YoutubeManager:
         downloaded_track: DownloadedTrack
         for downloaded_track in self.all_tracks_to_download:
             if "name" in downloaded_track.youtube_tags:
+                if "filepath" not in downloaded_track.youtube_tags:
+                    self.logger.error(f"No tag information for YouTube track [{self.current_downloaded_track.youtube_url}] (the download probably failed)")
+
                 file_path = Path(downloaded_track.youtube_tags["filepath"])
 
                 try:

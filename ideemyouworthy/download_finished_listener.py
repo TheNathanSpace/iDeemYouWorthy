@@ -27,7 +27,7 @@ class DownloadFinishedListener(LogListener):
                 if downloaded_track.deezer_uuid == value["uuid"]:
                     self.downloaded_number += 1
 
-                    self.logger.info(f"[{str(self.downloaded_number)}/{str(len(self.track_manager.deezer_tracks))}] Couldn't get track {downloaded_track.key} from deezer; will use YouTube")
+                    self.logger.info(f"[{str(self.downloaded_number)}/{str(len(self.track_manager.deezer_tracks))}] Couldn't get track [{downloaded_track.key}] from deezer; will use YouTube")
 
                     downloaded_track.deezer_uuid = None
                     downloaded_track.youtube_tags = self.track_manager.get_track_data(downloaded_track.key)

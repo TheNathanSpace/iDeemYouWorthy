@@ -6,6 +6,7 @@ from pathlib import Path
 
 import deemix
 import deezer
+from deemix.errors import TrackNotOnDeezer
 from tinytag import TinyTag
 
 import util
@@ -61,12 +62,15 @@ class TrackManager:
             spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
             try:
                 deezer_single = deemix.generateDownloadObject(dz = deezer_object, link = spotify_url, bitrate = deezer.TrackFormats.MP3_320, plugins = {"spotify": self.account_manager.spotify_helper}, listener = listener)
-
                 deezer_uuid = "track_" + str(deezer_single.id) + "_3"
                 downloaded_track.deezer_uuid = deezer_uuid
                 downloaded_track.deezer_single = deezer_single
 
+            except TrackNotOnDeezer as e:
+                self.logger.error(f"Spotify track {track_uri} not on Deezer; will use YouTube")
+                is_youtube = True
             except Exception as e:
+                self.logger.error(f"Error {type(e)} converting Spotify track {track_uri} to Deezer track; will use YouTube")
                 is_youtube = True
 
         if is_youtube:
