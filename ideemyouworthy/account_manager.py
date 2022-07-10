@@ -1,3 +1,4 @@
+from copy import deepcopy
 from logging import Logger
 from pathlib import Path
 
@@ -47,7 +48,7 @@ class AccountManager:
         self.spotify_helper = None
 
     def login_spotify(self):
-        self.logger.debug("Attempting to authorize with Spotify")
+        self.logger.debug("Attempting to authorize with Spotify (Spotipy)")
         auth_manager = SpotifyOAuth(client_id = self.account_info_dict["SPOTIFY_CLIENT_ID"],
                                     client_secret = self.account_info_dict["SPOTIFY_CLIENT_SECRET"],
                                     redirect_uri = "https://example.com", scope = self.spotify_scope,
@@ -70,8 +71,21 @@ class AccountManager:
             json.dump(deemix_spotify_settings, f, indent = 2)
 
         self.spotify_helper = spotify.Spotify(getConfigFolder())
-        self.spotify_helper.checkCredentials()
-        self.spotify_helper.loadSettings()
+
+        if not self.spotify_helper.enabled:
+            self.logger.debug(f"Could not enable deezer/Spotify, retrying...")
+
+            self.spotify_helper.loadSettings()
+
+            if not self.spotify_helper.enabled:
+                self.logger.debug(f"STILL could not enable deezer/Spotify, retrying...")
+
+                self.spotify_helper.setCredentials(clientId = self.account_info_dict["SPOTIFY_CLIENT_ID"], clientSecret = self.account_info_dict["SPOTIFY_CLIENT_SECRET"])
+                self.spotify_helper.checkCredentials()
+
+                if not self.spotify_helper.enabled:
+                    self.logger.debug(f"STILL COULDN'T enable deezer/Spotify. That's a problem.")
+
         self.logger.debug("Setup deezer Spotify helper")
 
     def login_deezer(self, deezer_object: Deezer):
