@@ -73,20 +73,20 @@ class AccountManager:
         self.spotify_helper = spotify.Spotify(getConfigFolder())
 
         if not self.spotify_helper.enabled:
-            self.logger.debug(f"Could not enable deezer/Spotify, retrying...")
+            self.logger.debug(f"Could not enable deemix/Spotify, retrying...")
 
             self.spotify_helper.loadSettings()
 
             if not self.spotify_helper.enabled:
-                self.logger.debug(f"STILL could not enable deezer/Spotify, retrying...")
+                self.logger.debug(f"STILL could not enable deemix/Spotify, retrying...")
 
                 self.spotify_helper.setCredentials(clientId = self.account_info_dict["SPOTIFY_CLIENT_ID"], clientSecret = self.account_info_dict["SPOTIFY_CLIENT_SECRET"])
                 self.spotify_helper.checkCredentials()
 
                 if not self.spotify_helper.enabled:
-                    self.logger.debug(f"STILL COULDN'T enable deezer/Spotify. That's a problem.")
+                    self.logger.debug(f"STILL COULDN'T enable deemix/Spotify. That's a problem.")
 
-        self.logger.debug("Setup deezer Spotify helper")
+        self.logger.debug("Setup deemix Spotify helper")
 
     def login_deezer(self, deezer_object: Deezer):
         self.logger.debug("Attempting to authorize with Deezer")

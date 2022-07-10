@@ -61,8 +61,9 @@ class TrackManager:
         else:
             spotify_url = "https://open.spotify.com/" + split_uri[1] + "/" + split_uri[2]
             try:
-                deezer_single = deemix.generateDownloadObject(dz = deezer_object, link = spotify_url, bitrate = deezer.TrackFormats.MP3_320, plugins = {"spotify": self.account_manager.spotify_helper}, listener = listener)
-                deezer_uuid = "track_" + str(deezer_single.id) + "_3"
+                # Todo: allow other bitrates. Will change TrackFormat and _1 suffix
+                deezer_single = deemix.generateDownloadObject(dz = deezer_object, link = spotify_url, bitrate = deezer.TrackFormats.MP3_128, plugins = {"spotify": self.account_manager.spotify_helper}, listener = listener)
+                deezer_uuid = "track_" + str(deezer_single.id) + "_1"
                 downloaded_track.deezer_uuid = deezer_uuid
                 downloaded_track.deezer_single = deezer_single
 

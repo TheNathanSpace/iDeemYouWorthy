@@ -2,6 +2,7 @@ import collections
 import json
 import logging
 import os
+import shutil
 from pathlib import Path
 
 from deemix.downloader import Downloader
@@ -27,6 +28,7 @@ from youtube_manager import YoutubeManager
 #
 # delete_path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
 # if delete_path.exists(): os.remove(delete_path)
+# print("Deleted old directories")
 
 # END TESTING
 
@@ -77,6 +79,8 @@ if not got_settings:
     verify_path_lengths = input("Rename files too long to copy to Android? [y/n] ") == "y"
     copy_to_android = input("Copy music and playlists to Android Music folder? (Won't waste time overwriting, make sure to enable USB debugging) [y/n] ") == "y"
 
+# todo: verify that every track in track_master_list.json exists
+
 account_manager = AccountManager(logger)
 account_manager.login_spotify()
 
@@ -114,7 +118,7 @@ track_manager.unique_spotify_tracks = unique_spotify_tracks
 track_manager.custom_tracks = all_custom_tracks
 
 listener = DownloadFinishedListener(track_manager = track_manager, youtube_manager = youtube_manager, logger = logger)
-logger.info("Converting Spotify tracks to deezer and YouTube, this might take a while...")
+logger.info("Converting Spotify tracks to Deezer and YouTube, this might take a while...")
 track_manager.process_spotify_tracks(deezer_object = deezer_object, listener = listener, youtube_manager = youtube_manager)
 track_manager.process_custom_tracks(youtube_manager = youtube_manager)
 
@@ -122,14 +126,13 @@ if len(track_manager.deezer_tracks) + len(track_manager.youtube_tracks) == 0:
     logger.info("Downloading 0 tracks!")
 
 if len(track_manager.deezer_tracks) != 0:
-    logger.info("---  deezer downloads:  ---")
+    logger.info("---  Deezer downloads:  ---")
     listener.deezer_tracks_to_download = len(track_manager.deezer_tracks)
     downloaded_track: DownloadedTrack
     for downloaded_track in track_manager.deezer_tracks:
         downloader = Downloader(dz = deezer_object, downloadObject = downloaded_track.deezer_single, settings = account_manager.deezer_settings, listener = listener)
         listener.downloader = downloader
         downloader.start()
-        # todo: fallback bitrate
 
 if len(track_manager.youtube_tracks) != 0:
     logger.info("---  YouTube downloads:  ---")
@@ -161,6 +164,8 @@ if fix_itunes:
 
 if make_m3u:
     playlist_manager.create_m3u()
+
+playlist_manager.archive_playlists()
 
 if copy_to_android:
     while True:

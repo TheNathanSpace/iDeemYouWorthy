@@ -43,7 +43,7 @@ def transfer_all(logger: Logger):
     all_playlists: List[Path] = []
     for file in playlists_path.iterdir():
         if file.is_dir(): continue
-        if Path(file).suffix in [".m3u", ".jpg"]: # Don't copy the .json playlist files
+        if Path(file).suffix in [".m3u"]:  # Don't copy the .json playlist files or playlist art
             all_playlists.append(file)
 
     for file in all_playlists:
