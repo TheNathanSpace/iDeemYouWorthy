@@ -5,10 +5,22 @@ from pathlib import Path
 
 class LogManager:
     def __init__(self):
-        Path.mkdir(Path.cwd().parents[0] / "logs", exist_ok = True)
-        file_string = (str(datetime.now()) + ".log").replace(":", "꞉")
-        self.log_file = Path(Path.cwd().parents[0] / "logs" / file_string)
+        log_folder = Path(Path.cwd().parents[0] / "logs")
+        Path.mkdir(log_folder, exist_ok = True)
+
+        old_log_file = Path(log_folder / "latest.log")
+        if old_log_file.exists():
+            first_line = None
+            with old_log_file.open(mode = "r") as opened:
+                first_line = opened.readline()
+            first_line = first_line.replace("\n", "").replace(":", "꞉")
+            old_log_file.rename(f"{log_folder / first_line}")
+
+        file_date_string = (str(datetime.now()) + ".log")
+        file_string = "latest.log"
+        self.log_file = Path(log_folder / file_string)
         self.log_file.touch()
+        self.log_file.write_text(file_date_string + "\n", encoding = 'utf-8')
 
         self.deemix_logger = logging.getLogger('deemix')
         self.deemix_logger.setLevel(logging.DEBUG)
@@ -24,7 +36,7 @@ class LogManager:
         self.logger = logging.getLogger('iDYW')
         self.logger.setLevel(logging.DEBUG)
 
-        main_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
+        main_handler = logging.FileHandler(filename = str(self.log_file), mode = "a", encoding = 'utf-8')
         main_handler.setFormatter(formatter)
         main_handler.setLevel(logging.DEBUG)
 
@@ -32,7 +44,7 @@ class LogManager:
         stream_handler.setLevel(logging.INFO)
         stream_handler.setFormatter(formatter)
 
-        system_handler = logging.FileHandler(filename = str(self.log_file), mode = "a")
+        system_handler = logging.FileHandler(filename = str(self.log_file), mode = "a", encoding = 'utf-8')
         system_handler.setFormatter(formatter)
         system_handler.setLevel(logging.CRITICAL)
 
