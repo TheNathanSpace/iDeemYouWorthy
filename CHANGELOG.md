@@ -1,5 +1,25 @@
 # Changelog
 
+### 1.14
+
+These version numbers are so arbitrary; I should have just done integer release numbers back when I started 😭
+
+##### Added
+
+ - The latest log file is now named `latest.log`
+ - Option to delete stored entries for nonexistent music files (that you might have deleted)
+
+##### Changed
+
+ - Playlist artwork is no longer copied to Android
+ - Playlists are now only archived when there's been a change in contents
+ - Updated dependencies in `requirements.txt`
+
+##### Fixed
+
+ - Fixed several bugs
+ - Clarified error messages
+
 ### 1.13.1
 
 Some useful bug fixes that I _probably_ should have committed before I plugged this on Reddit...
