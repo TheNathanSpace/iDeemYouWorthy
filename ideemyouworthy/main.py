@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 from pathlib import Path
+from typing import Dict
 
 from deemix.downloader import Downloader
 from deezer import Deezer
@@ -49,6 +50,7 @@ if Path(Path.cwd().parents[0] / "user_settings.json").exists():
         make_m3u = user_settings_dict["make_m3u"]
         verify_path_lengths = user_settings_dict["verify_path_lengths"]
         copy_to_android = user_settings_dict["copy_to_android"]
+        delete_nonexistent_files = user_settings_dict["delete_nonexistent_files"]
         logger.info("Loaded settings from user_settings.json (change \"always_use_user_settings\" to stop this)")
         got_settings = True
     else:
@@ -62,6 +64,7 @@ if Path(Path.cwd().parents[0] / "user_settings.json").exists():
             make_m3u = user_settings_dict["make_m3u"]
             verify_path_lengths = user_settings_dict["verify_path_lengths"]
             copy_to_android = user_settings_dict["copy_to_android"]
+            delete_nonexistent_files = user_settings_dict["delete_nonexistent_files"]
             Path(Path.cwd().parents[0] / "user_settings.json").write_text(json.dumps(user_settings_dict, indent = 4, ensure_ascii = True), encoding = "utf-8")
             logger.info("Loaded settings from user_settings.json. Stored this preference for the future.")
             got_settings = True
@@ -78,8 +81,23 @@ if not got_settings:
     make_m3u = input("Make m3u files (stored in the playlists folder)? [y/n] ") == "y"
     verify_path_lengths = input("Rename files too long to copy to Android? [y/n] ") == "y"
     copy_to_android = input("Copy music and playlists to Android Music folder? (Won't waste time overwriting, make sure to enable USB debugging) [y/n] ") == "y"
+    delete_nonexistent_files = input("Delete stored entries for nonexistent music files (if you've deleted them)? [y/n] ") == "y"
 
-# todo: verify that every track in track_master_list.json exists
+master_track_file: Path = Path(Path.cwd().parent / "cache" / "track_master_list.json")
+if master_track_file.exists():
+    logger.info(f"Checking for nonexistent files")
+    master_dict: Dict = json.loads(master_track_file.read_text(encoding = "utf-8"))
+    keys_to_remove = []
+    for track in master_dict:
+        track_location = Path(master_dict[track]["download_location"])
+        if not track_location.exists():
+            keys_to_remove.append(track)
+
+    for key in keys_to_remove:
+        del master_dict[key]
+
+    master_track_file.write_text(json.dumps(master_dict, indent = 4, ensure_ascii = False), encoding = "utf-8")
+    logger.info(f"Deleted entries for {len(keys_to_remove)} nonexistent files")
 
 account_manager = AccountManager(logger)
 account_manager.login_spotify()
@@ -146,7 +164,6 @@ logger.info("Fixing track file paths and updating playlists, this might take a w
 if verify_path_lengths:
     logger.debug("Verifying file path lengths")
 
-    master_track_file = Path(Path.cwd().parent / "cache" / "track_master_list.json")
     master_track_dict = json.loads(master_track_file.read_text(encoding = "utf-8"))
 
     for playlist_uri in master_track_dict:

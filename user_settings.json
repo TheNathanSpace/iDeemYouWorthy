@@ -6,5 +6,6 @@
     "fix_itunes": false,
     "make_m3u": true,
     "verify_path_lengths": true,
-    "copy_to_android": true
+    "copy_to_android": true,
+    "delete_nonexistent_files": false
 }
